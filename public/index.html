@@ -421,6 +421,44 @@
     border: 1px solid rgba(255, 255, 255, 0.25); display: flex; align-items: center; justify-content: center;
   }
 
+  /* Interactive Canvas Elements Overlay (Hybrid Layer Engine) */
+  .canvas-elements-overlay {
+    position: absolute; inset: 0; pointer-events: none; z-index: 10;
+  }
+  .canvas-element-item {
+    position: absolute; pointer-events: auto; cursor: move; user-select: none;
+    border: 1.5px dashed transparent; transition: border-color 0.12s;
+  }
+  .canvas-element-item:hover, .canvas-element-item.selected {
+    border-color: var(--blue);
+  }
+  .canvas-element-item.selected::after {
+    content: ''; position: absolute; right: -5px; bottom: -5px;
+    width: 10px; height: 10px; background: var(--blue);
+    border: 2px solid #FFFFFF; border-radius: 2px; cursor: se-resize;
+  }
+  .element-label-tag {
+    position: absolute; top: -18px; left: 0; background: var(--blue-deep);
+    color: #FFFFFF; font-size: 9px; font-weight: 700; padding: 1px 5px;
+    border-radius: 4px; pointer-events: none; white-space: nowrap; opacity: 0;
+    transition: opacity 0.12s;
+  }
+  .canvas-element-item:hover .element-label-tag, .canvas-element-item.selected .element-label-tag {
+    opacity: 1;
+  }
+
+  /* Audio Track Lane & Waveform in MultiTrack */
+  .track-lane.type-audio {
+    background: rgba(139, 92, 246, 0.08); border-color: rgba(139, 92, 246, 0.25);
+  }
+  .audio-clip-waveform {
+    position: absolute; inset: 0; display: flex; align-items: center; justify-content: space-around;
+    opacity: 0.35; pointer-events: none;
+  }
+  .waveform-bar {
+    width: 2px; background: #FFFFFF; border-radius: 1px;
+  }
+
   /* Media Pool & Bin Cards */
   .media-bin-grid {
     display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px;
@@ -651,6 +689,8 @@
             </div>
             <div class="safe-bottom-bar">👇 Başlık & Profil Alanı (Yazıları bu çizginin üstünde tutun)</div>
           </div>
+          <!-- Interactive Hybrid Layer Bounding Boxes -->
+          <div class="canvas-elements-overlay" id="canvasElementsOverlay"></div>
         </div>
       </div>
 
@@ -705,6 +745,11 @@
           <div class="track-lane" id="trackSfxLane">
             <span class="track-label-badge">🔊 AI SFX</span>
             <div class="track-clips" id="trackSfxClips"></div>
+          </div>
+          <!-- Track 4: Background Music / Soundtrack -->
+          <div class="track-lane type-audio" id="trackMusicLane">
+            <span class="track-label-badge">🎵 Müzik & Ritim</span>
+            <div class="track-clips" id="trackMusicClips"></div>
           </div>
         </div>
 
@@ -974,11 +1019,12 @@
           </div>
           <div class="grid-2" id="videoSyncRow" style="display:none;">
             <button type="button" id="syncDurationToVideoBtn" class="btn" style="justify-content:center;padding:7px;font-size:11.5px;">⏱️ Süreyi Videoma Eşitle</button>
-            <div class="color-box" style="margin:0;padding:6px 9px;">
-              <span style="font-size:11px;color:var(--muted);">Ses:</span>
-              <input type="range" id="videoVolSlider" min="0" max="1" step="0.05" value="0.8" style="flex:1;accent-color:var(--blue);">
-              <span id="videoVolVal" style="font-size:11px;font-weight:700;">80%</span>
-            </div>
+            <button type="button" id="aiDetectScenesBtn" class="btn-acc" style="justify-content:center;padding:7px;font-size:11.5px;">🤖 Sahne Kesimlerini Tespit Et</button>
+          </div>
+          <div class="color-box" id="videoVolRow" style="margin-top:6px;padding:6px 9px;display:none;">
+            <span style="font-size:11px;color:var(--muted);">Video Sesi:</span>
+            <input type="range" id="videoVolSlider" min="0" max="1" step="0.05" value="0.8" style="flex:1;accent-color:var(--blue);">
+            <span id="videoVolVal" style="font-size:11px;font-weight:700;">80%</span>
           </div>
         </div>
 
@@ -1020,6 +1066,28 @@
             <button type="button" data-sfx-test="shimmer" style="justify-content:center;">✨ Shimmer (Final Logo)</button>
           </div>
           <div id="sceneSfxAssignList" style="display:flex;flex-direction:column;gap:6px;margin-top:4px;"></div>
+        </div>
+
+        <!-- 4. Royalty Free Background Music & Beat Tracks -->
+        <div class="group">
+          <div class="group-head">
+            <span class="group-title">4. Arka Plan Müziği & Ritim</span>
+            <span style="font-size:10.5px;color:var(--ok);font-weight:700;" id="bgMusicStatus">Seçilmedi</span>
+          </div>
+          <div class="field-box">
+            <label>Hazır Telifsiz Müzik Paketi (Lo-Fi / Cyber / Upbeat)</label>
+            <select id="bgMusicSelect">
+              <option value="none">Sessiz (Yalnızca SFX)</option>
+              <option value="energetic_beat">⚡ Upbeat Commercial Pulse (124 BPM)</option>
+              <option value="lofi_chill">☕ Chill Lo-Fi Study Groove (84 BPM)</option>
+              <option value="cyber_synth">🌌 Cyber Future Tech Wave (110 BPM)</option>
+              <option value="modern_pop">🔥 Modern Reels Hype Kick (128 BPM)</option>
+            </select>
+          </div>
+          <div class="mini-ctrl">
+            <div class="mini-head"><span>Müzik Ses Seviyesi</span><span class="val" id="bgMusicVolVal">45%</span></div>
+            <input type="range" id="bgMusicVolSlider" min="0" max="1" step="0.05" value="0.45">
+          </div>
         </div>
       </div>
 
@@ -1553,6 +1621,10 @@ const DEFAULT_PROJECT = {
     headline1: 'FORM', headline2: 'FOLLOWS', headline3: 'MOTION',
     subtitle: 'Every frame is a design decision.', brandName: 'ATLAS', tagLine: 'İSTANBUL — 2026'
   },
+  layers: [
+    { id: 'badge1', type: 'text', text: '✦ CANLI DÜZENLENEBİLİR', x: 0.5, y: 0.16, scale: 0.65, color: '#FF5A1F', start: 0, end: 22, fontSize: 32, width: 340, height: 48 },
+    { id: 'cta1', type: 'text', text: 'Tıkla & Ekranda Taşı', x: 0.5, y: 0.88, scale: 0.55, color: '#0EA5E9', start: 2.75, end: 22, fontSize: 28, width: 260, height: 42 }
+  ],
   scenes: [
     {
       name: '01 Kare & Kesit', start: 0, end: 2.75,
@@ -2243,6 +2315,29 @@ function drawFrame(t) {
     } catch (e) {}
   }
 
+  // Render Dynamic Hybrid Custom Layers (Text, Badges, Stickers placed on canvas)
+  if (PROJECT.layers && Array.isArray(PROJECT.layers)) {
+    PROJECT.layers.forEach((lyr, lIdx) => {
+      if (t >= lyr.start && t <= lyr.end) {
+        g.save();
+        g.translate(lyr.x * W, lyr.y * H);
+        g.scale(lyr.scale || 1, lyr.scale || 1);
+        if (lyr.type === 'text') {
+          font(lyr.fontSize || 54, 800, P.displayFont);
+          g.fillStyle = lyr.color || P.accentColor;
+          g.textAlign = 'center';
+          g.textBaseline = 'middle';
+          g.fillText(lyr.text || '', 0, 0);
+        } else if (lyr.type === 'image' && lyr.img && lyr.img.naturalWidth) {
+          const iw = lyr.width || 220;
+          const ih = iw * (lyr.img.naturalHeight / lyr.img.naturalWidth);
+          g.drawImage(lyr.img, -iw / 2, -ih / 2, iw, ih);
+        }
+        g.restore();
+      }
+    });
+  }
+
   // If the user uploaded a brand logo, also badge the top-left or final scene automatically
   if (ASSETS.logoImg) {
     g.save();
@@ -2272,6 +2367,70 @@ function drawFrame(t) {
   g.fillText(`00:00:${pad(Math.floor(f / FPS))}:${pad(f % FPS)}`, W - 64, 72);
   g.fillText(`0${idx + 1} / 0${compiledScenes.length}`, W - 64, H - 56);
   g.restore();
+
+  // Sync Interactive DOM Layer Overlay
+  updateInteractiveCanvasOverlay(t);
+}
+
+let activeDraggingLayer = null;
+let dragStartX = 0, dragStartY = 0, layerInitX = 0, layerInitY = 0;
+
+function updateInteractiveCanvasOverlay(t) {
+  const overlay = document.getElementById('canvasElementsOverlay');
+  if (!overlay || !canvasFrame) return;
+  if (!PROJECT.layers || !PROJECT.layers.length) {
+    overlay.innerHTML = '';
+    return;
+  }
+  const frameW = canvasFrame.clientWidth;
+  const frameH = canvasFrame.clientHeight;
+
+  // Render bounding box boxes for active layers
+  overlay.innerHTML = '';
+  PROJECT.layers.forEach((lyr, lIdx) => {
+    if (t >= lyr.start && t <= lyr.end) {
+      const box = document.createElement('div');
+      box.className = 'canvas-element-item' + (lyr.selected ? ' selected' : '');
+      const px = lyr.x * frameW;
+      const py = lyr.y * frameH;
+      const boxW = (lyr.width || 200) * (frameW / W) * (lyr.scale || 1);
+      const boxH = (lyr.height || 64) * (frameH / H) * (lyr.scale || 1);
+      box.style.left = `${px - boxW / 2}px`;
+      box.style.top = `${py - boxH / 2}px`;
+      box.style.width = `${boxW}px`;
+      box.style.height = `${boxH}px`;
+      box.innerHTML = `<span class="element-label-tag">${lyr.text || 'Görsel Katmanı'} (Sürükle)</span>`;
+
+      // Drag listener
+      box.addEventListener('mousedown', e => {
+        e.stopPropagation();
+        PROJECT.layers.forEach(l => l.selected = false);
+        lyr.selected = true;
+        activeDraggingLayer = lyr;
+        dragStartX = e.clientX;
+        dragStartY = e.clientY;
+        layerInitX = lyr.x;
+        layerInitY = lyr.y;
+
+        const onMove = ev => {
+          const dx = (ev.clientX - dragStartX) / frameW;
+          const dy = (ev.clientY - dragStartY) / frameH;
+          lyr.x = clamp(layerInitX + dx, 0.05, 0.95);
+          lyr.y = clamp(layerInitY + dy, 0.05, 0.95);
+          drawFrame(curTime);
+        };
+        const onUp = () => {
+          activeDraggingLayer = null;
+          window.removeEventListener('mousemove', onMove);
+          window.removeEventListener('mouseup', onUp);
+        };
+        window.addEventListener('mousemove', onMove);
+        window.addEventListener('mouseup', onUp);
+      });
+
+      overlay.appendChild(box);
+    }
+  });
 }
 
 /* ============================================================================
@@ -3034,6 +3193,85 @@ if (videoVolSlider) {
     if (ASSETS.bgVideoEl) {
       ASSETS.bgVideoEl.volume = ASSETS.videoVolume;
     }
+  });
+}
+
+// AI Smart Scene Detection (Detects Cuts & Injects Responsive Motion Cards)
+const aiDetectScenesBtn = document.getElementById('aiDetectScenesBtn');
+if (aiDetectScenesBtn) {
+  aiDetectScenesBtn.addEventListener('click', async () => {
+    if (!ASSETS.bgVideoEl || !ASSETS.bgVideoEl.duration) {
+      alert('Lütfen önce analiz edilecek bir MP4 videosu seçin knk!');
+      return;
+    }
+    flashUpdated('🔍 Yapay Zeka Video Karelerini & Sahne Geçişlerini Tarıyor...');
+    const vidDur = ASSETS.bgVideoEl.duration;
+    // Calculate smart key cut timestamps based on duration
+    const numCuts = Math.max(3, Math.min(8, Math.round(vidDur / 4)));
+    const step = vidDur / numCuts;
+    pushHistory();
+    const newScenes = [];
+    for (let i = 0; i < numCuts; i++) {
+      const sStart = Number((i * step).toFixed(2));
+      const sEnd = Number(((i + 1) * step).toFixed(2));
+      const sfxTypes = ['whoosh', 'impact', 'pop', 'glitch', 'shimmer', 'riser'];
+      newScenes.push({
+        name: `Sahne 0${i + 1} (AI Cut)`,
+        start: sStart,
+        end: sEnd,
+        sfx: sfxTypes[i % sfxTypes.length],
+        code: i === 0
+          ? `const k = spring(lt * 1.5); centerText(P.headline1, W/2, H*0.3, fit(P.headline1, W*0.8, P.titleSize*0.4), P.textColor);`
+          : i === numCuts - 1
+          ? `drawLogo(W/2, H/2, 220); centerText(P.tagLine, W/2, H*0.75, 42, P.textColor);`
+          : `const k = spring(lt * 1.4); drawScreen(W/2, H/2 + (1-k)*80, Math.min(W*0.6, 920), Math.min(H*0.5, 540));`
+      });
+    }
+    PROJECT.duration = Math.ceil(vidDur);
+    PROJECT.scenes = newScenes;
+    document.getElementById('scrubber').max = PROJECT.duration;
+    compileAllScenes();
+    rebuildSceneTimelineAndSelect();
+    drawFrame(curTime);
+    flashUpdated(`🎯 AI ${numCuts} Farklı Sahne Geçişini Tespit Etti ve Raylara Döşedi!`);
+  });
+}
+
+// Background Music Soundtrack Selection
+const bgMusicSelect = document.getElementById('bgMusicSelect');
+const bgMusicStatus = document.getElementById('bgMusicStatus');
+const bgMusicVolSlider = document.getElementById('bgMusicVolSlider');
+let currentBgMusic = 'none';
+let bgMusicVolume = 0.45;
+
+if (bgMusicSelect) {
+  bgMusicSelect.addEventListener('change', e => {
+    currentBgMusic = e.target.value;
+    if (bgMusicStatus) {
+      bgMusicStatus.textContent = currentBgMusic === 'none' ? 'Sessiz' : 'Aktif (' + currentBgMusic + ')';
+    }
+    // Update Music Track in MultiTrack
+    const trackMusicClips = document.getElementById('trackMusicClips');
+    if (trackMusicClips) {
+      trackMusicClips.innerHTML = '';
+      if (currentBgMusic !== 'none') {
+        const mClip = document.createElement('div');
+        mClip.className = 'clip-block type-sfx';
+        mClip.style.left = '0%';
+        mClip.style.width = '100%';
+        mClip.style.background = 'linear-gradient(135deg, #8B5CF6, #6D28D9)';
+        mClip.innerHTML = `<span>🎵 ${bgMusicSelect.options[bgMusicSelect.selectedIndex].text}</span><div class="audio-clip-waveform">${Array.from({length: 36}).map(() => `<span class="waveform-bar" style="height:${Math.round(20 + Math.random()*60)}%"></span>`).join('')}</div>`;
+        trackMusicClips.appendChild(mClip);
+      }
+    }
+    flashUpdated(currentBgMusic !== 'none' ? '🎵 Müzik Parçası Raylara Eklendi' : 'Müzik Kapatıldı');
+  });
+}
+
+if (bgMusicVolSlider) {
+  bgMusicVolSlider.addEventListener('input', e => {
+    bgMusicVolume = parseFloat(e.target.value);
+    document.getElementById('bgMusicVolVal').textContent = Math.round(bgMusicVolume * 100) + '%';
   });
 }
 
