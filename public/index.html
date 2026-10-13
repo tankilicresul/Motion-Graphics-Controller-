@@ -344,6 +344,108 @@
     background: linear-gradient(135deg, var(--acc), #FF7A45);
     box-shadow: 0 4px 12px rgba(255, 90, 31, 0.28);
   }
+
+  /* Multi-Track Timeline & Ruler (CapCut/Premiere Style) */
+  .timeline-toolbar {
+    display: flex; align-items: center; justify-content: space-between; gap: 8px;
+    padding-bottom: 2px;
+  }
+  .track-view-toggle {
+    display: flex; gap: 3px; background: var(--surface-2); padding: 3px; border-radius: 9px; border: 1px solid var(--border);
+  }
+  .track-view-toggle button {
+    padding: 3px 9px; font-size: 11px; font-weight: 700; border-radius: 7px; border: none; background: transparent; color: var(--muted); cursor: pointer;
+  }
+  .track-view-toggle button.active {
+    background: var(--surface); color: var(--text); box-shadow: 0 2px 6px rgba(0,0,0,0.06);
+  }
+
+  .multitrack-container {
+    position: relative; display: flex; flex-direction: column; gap: 4px;
+    background: var(--surface-2); border: 1px solid var(--border);
+    border-radius: 11px; padding: 6px 8px; overflow-x: auto; overflow-y: hidden;
+    user-select: none;
+  }
+  .multitrack-ruler {
+    height: 18px; position: relative; border-bottom: 1px solid var(--border);
+    font-family: 'JetBrains Mono', monospace; font-size: 9.5px; color: var(--muted);
+  }
+  .ruler-tick {
+    position: absolute; top: 0; bottom: 0; border-left: 1px solid var(--border);
+    padding-left: 4px; line-height: 16px;
+  }
+  .track-lane {
+    position: relative; height: 32px; background: rgba(255, 255, 255, 0.7);
+    border: 1px dashed rgba(15, 23, 42, 0.1); border-radius: 7px; overflow: hidden;
+  }
+  .track-label-badge {
+    position: absolute; left: 6px; top: 7px; font-size: 10px; font-weight: 800;
+    color: var(--muted); z-index: 5; pointer-events: none; text-transform: uppercase;
+    letter-spacing: 0.04em;
+  }
+  .clip-block {
+    position: absolute; top: 2px; bottom: 2px; border-radius: 6px;
+    display: flex; align-items: center; padding: 0 8px; font-size: 11px; font-weight: 700;
+    color: #FFFFFF; cursor: grab; overflow: hidden; white-space: nowrap; text-overflow: ellipsis;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.12);
+  }
+  .clip-block.type-video { background: linear-gradient(135deg, #FF5A1F, #FF8A4C); border: 1px solid rgba(255, 90, 31, 0.4); }
+  .clip-block.type-text { background: linear-gradient(135deg, #0EA5E9, #0284C7); border: 1px solid rgba(14, 165, 233, 0.4); }
+  .clip-block.type-sfx { background: linear-gradient(135deg, #8B5CF6, #7C3AED); border: 1px solid rgba(139, 92, 246, 0.4); }
+  .clip-block.type-logo { background: linear-gradient(135deg, #10B981, #059669); border: 1px solid rgba(16, 185, 129, 0.4); }
+
+  .playhead-needle {
+    position: absolute; top: 0; bottom: 0; width: 2px; background: #EF4444;
+    z-index: 20; pointer-events: none; box-shadow: 0 0 6px rgba(239, 68, 68, 0.6);
+  }
+  .playhead-needle::before {
+    content: ''; position: absolute; top: 0; left: -5px; width: 12px; height: 10px;
+    background: #EF4444; clip-path: polygon(0 0, 100% 0, 50% 100%);
+  }
+
+  /* Safe Area Overlay for Reels/TikTok */
+  .reels-safe-zone {
+    position: absolute; inset: 0; pointer-events: none; z-index: 15;
+    border: 2px dashed rgba(255, 255, 255, 0.45); border-radius: 14px;
+    display: flex; flex-direction: column; justify-content: space-between;
+  }
+  .safe-top-bar { height: 14%; border-bottom: 1px dashed rgba(255, 255, 255, 0.35); padding: 8px 14px; font-size: 11px; color: rgba(255,255,255,0.7); }
+  .safe-bottom-bar { height: 22%; border-top: 1px dashed rgba(255, 255, 255, 0.35); padding: 8px 14px; font-size: 11px; color: rgba(255,255,255,0.7); }
+  .safe-right-rail {
+    position: absolute; right: 8px; top: 40%; transform: translateY(-50%);
+    width: 58px; display: flex; flex-direction: column; gap: 8px; align-items: center;
+    color: rgba(255,255,255,0.65); font-size: 9.5px;
+  }
+  .safe-icon-pill {
+    width: 38px; height: 38px; border-radius: 50%; background: rgba(0, 0, 0, 0.35);
+    border: 1px solid rgba(255, 255, 255, 0.25); display: flex; align-items: center; justify-content: center;
+  }
+
+  /* Media Pool & Bin Cards */
+  .media-bin-grid {
+    display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px;
+  }
+  .media-card {
+    background: #FFFFFF; border: 1px solid var(--border); border-radius: 11px;
+    overflow: hidden; display: flex; flex-direction: column; transition: transform 0.15s ease, border-color 0.15s ease;
+  }
+  .media-card:hover { transform: translateY(-2px); border-color: var(--blue); }
+  .media-card-thumb {
+    width: 100%; height: 76px; background: #0F172A; object-fit: contain; display: block;
+  }
+  .media-card-body {
+    padding: 6px 8px; display: flex; flex-direction: column; gap: 4px;
+  }
+  .media-card-title {
+    font-size: 11px; font-weight: 700; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  }
+  .media-card-actions {
+    display: flex; gap: 4px;
+  }
+  .media-card-actions button {
+    flex: 1; padding: 3px 4px; font-size: 10px; font-weight: 600; border-radius: 6px;
+  }
+
   .transport {
     display: grid; grid-template-columns: auto auto auto 1fr auto; gap: 8px; align-items: center;
   }
@@ -363,12 +465,12 @@
     height: 100%; overflow: hidden; box-shadow: 0 10px 30px rgba(15, 23, 42, 0.06);
   }
   .tabs {
-    display: grid; grid-template-columns: repeat(3, 1fr); padding: 5px; margin: 10px 10px 2px;
-    background: var(--surface-2); border-radius: 13px; border: 1px solid var(--border); gap: 4px;
+    display: grid; grid-template-columns: repeat(4, 1fr); padding: 4px; margin: 8px 8px 2px;
+    background: var(--surface-2); border-radius: 12px; border: 1px solid var(--border); gap: 3px;
   }
   .tab {
-    padding: 7px 4px; text-align: center; font-size: 11.5px; font-weight: 700;
-    border-radius: 9px; color: var(--muted); cursor: pointer; transition: 0.15s ease;
+    padding: 6px 2px; text-align: center; font-size: 10.5px; font-weight: 700;
+    border-radius: 8px; color: var(--muted); cursor: pointer; transition: 0.15s ease;
   }
   .tab.active {
     color: #FFFFFF; background: linear-gradient(135deg, var(--blue), var(--blue-deep));
@@ -498,6 +600,7 @@
         <button type="button" class="ratio-btn" data-ratio="9:16" title="1080x1920 Dikey Reels / TikTok / Shorts">📱 9:16</button>
         <button type="button" class="ratio-btn" data-ratio="1:1" title="1080x1080 Kare Video">⬜ 1:1</button>
       </div>
+      <button type="button" id="safeZoneToggleBtn" class="btn" title="Reels/TikTok Güvenli Alan Kılavuzunu Göster/Gizle">🎯 Kılavuz</button>
       <button id="quickPasteBtn" class="btn-ok" title="Claude Pro'dan kopyaladığın çıktıyı tek tıkla sahneye çeker">📋 Panodan Yükle</button>
       <button id="claudeModalBtn" class="btn-claude">💠 Claude Pro & MCP</button>
       <button id="undoBtn" title="Son değişikliği geri al">↶ Geri Al</button>
@@ -538,6 +641,16 @@
           <div class="clipboard-banner" id="clipboardBanner">
             <span>✨ Panoda yeni Claude Pro videosu hazır! Yüklemek için tıkla</span>
           </div>
+          <!-- Reels / TikTok / Shorts Safe Zone UI Overlay -->
+          <div class="reels-safe-zone" id="reelsSafeZone" style="display:none;">
+            <div class="safe-top-bar">👆 Reels Arama & Ses Alanı</div>
+            <div class="safe-right-rail">
+              <div class="safe-icon-pill">❤️</div>
+              <div class="safe-icon-pill">💬</div>
+              <div class="safe-icon-pill">↗️</div>
+            </div>
+            <div class="safe-bottom-bar">👇 Başlık & Profil Alanı (Yazıları bu çizginin üstünde tutun)</div>
+          </div>
         </div>
       </div>
 
@@ -545,24 +658,63 @@
       <div class="resizer-h" id="resizerStage" title="Sürükle: Sahne ve Zaman Çizgisini boyutlandır | Çift Tıkla: Sıfırla"></div>
 
       <div class="timeline-dock">
-        <div class="scene-pills" id="scenePills"></div>
-        <div class="scene-trimmer-bar" id="sceneTrimmerBar" style="display:flex;align-items:center;justify-content:space-between;gap:8px;font-size:11.5px;color:var(--muted);background:var(--surface-2);border:1px solid var(--border);border-radius:9px;padding:4px 10px;">
-          <div style="display:flex;align-items:center;gap:6px;">
-            <span style="font-weight:700;color:var(--blue-deep);" id="trimmerSceneName">01 Sahne</span>
-            <span>Zaman Aralığı:</span>
+        <!-- Timeline Header Toolbar -->
+        <div class="timeline-toolbar">
+          <div class="track-view-toggle">
+            <button type="button" class="active" id="btnViewStoryboard">📑 Sahne Kartları</button>
+            <button type="button" id="btnViewMultiTrack">🎬 Çok Katmanlı Ray (CapCut Modu)</button>
           </div>
           <div style="display:flex;align-items:center;gap:6px;">
-            <label style="display:flex;align-items:center;gap:3px;">Başla: <input type="number" id="trimStartInput" step="0.1" min="0" style="width:52px;padding:2px 4px;font-size:11px;font-weight:700;background:var(--surface);border:1px solid var(--border);border-radius:6px;text-align:center;color:var(--text);"></label>
-            <label style="display:flex;align-items:center;gap:3px;">Bitir: <input type="number" id="trimEndInput" step="0.1" min="0.1" style="width:52px;padding:2px 4px;font-size:11px;font-weight:700;background:var(--surface);border:1px solid var(--border);border-radius:6px;text-align:center;color:var(--text);"></label>
-            <button type="button" id="applyTrimBtn" class="btn-acc" style="padding:3px 9px;font-size:10.5px;">✓ Ayarla</button>
+            <button type="button" id="splitAtPlayheadBtn" class="btn" style="padding:3px 8px;font-size:11px;" title="Oynatma kafasının bulunduğu yerden sahneyi böl">✂️ Böl</button>
+            <button type="button" id="duplicateSceneBtn" class="btn" style="padding:3px 8px;font-size:11px;" title="Seçili Sahneyi Çoğalt">📑 Çoğalt</button>
+            <button type="button" id="deleteSceneBtn" class="btn" style="padding:3px 8px;font-size:11px;color:#EF4444;" title="Seçili Sahneyi Sil">🗑️ Sil</button>
           </div>
         </div>
+
+        <!-- VIEW 1: STORYBOARD PILLS & TRIMMER -->
+        <div id="storyboardContainer">
+          <div class="scene-pills" id="scenePills"></div>
+          <div class="scene-trimmer-bar" id="sceneTrimmerBar" style="display:flex;align-items:center;justify-content:space-between;gap:8px;font-size:11.5px;color:var(--muted);background:var(--surface-2);border:1px solid var(--border);border-radius:9px;padding:4px 10px;margin-top:6px;">
+            <div style="display:flex;align-items:center;gap:6px;">
+              <span style="font-weight:700;color:var(--blue-deep);" id="trimmerSceneName">01 Sahne</span>
+              <span>Zaman Aralığı:</span>
+            </div>
+            <div style="display:flex;align-items:center;gap:6px;">
+              <label style="display:flex;align-items:center;gap:3px;">Başla: <input type="number" id="trimStartInput" step="0.1" min="0" style="width:52px;padding:2px 4px;font-size:11px;font-weight:700;background:var(--surface);border:1px solid var(--border);border-radius:6px;text-align:center;color:var(--text);"></label>
+              <label style="display:flex;align-items:center;gap:3px;">Bitir: <input type="number" id="trimEndInput" step="0.1" min="0.1" style="width:52px;padding:2px 4px;font-size:11px;font-weight:700;background:var(--surface);border:1px solid var(--border);border-radius:6px;text-align:center;color:var(--text);"></label>
+              <button type="button" id="applyTrimBtn" class="btn-acc" style="padding:3px 9px;font-size:10.5px;">✓ Ayarla</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- VIEW 2: CAPCUT-STYLE MULTI-TRACK VISUAL TIMELINE -->
+        <div id="multiTrackContainer" class="multitrack-container" style="display:none;">
+          <div class="multitrack-ruler" id="multiTrackRuler"></div>
+          <div class="playhead-needle" id="playheadNeedle" style="left:0%;"></div>
+          <!-- Track 1: Text & Titles -->
+          <div class="track-lane" id="trackTextLane">
+            <span class="track-label-badge">🔤 Metin</span>
+            <div class="track-clips" id="trackTextClips"></div>
+          </div>
+          <!-- Track 2: Visual Elements & Mockups -->
+          <div class="track-lane" id="trackVisualLane">
+            <span class="track-label-badge">📱 Görsel & Sahne</span>
+            <div class="track-clips" id="trackVisualClips"></div>
+          </div>
+          <!-- Track 3: SFX & Audio Triggers -->
+          <div class="track-lane" id="trackSfxLane">
+            <span class="track-label-badge">🔊 AI SFX</span>
+            <div class="track-clips" id="trackSfxClips"></div>
+          </div>
+        </div>
+
+        <!-- TRANSPORT SCRUBBER -->
         <div class="transport">
           <button id="playBtn">⏸ Duraklat</button>
           <button id="loopSceneBtn">🔁 Sahneyi Döndür: Kapalı</button>
           <button id="sfxToggleBtn" class="btn-ok" title="Sahne geçiş ses efektlerini aç/kapat">🔊 SFX: Açık</button>
-          <input id="scrubber" type="range" min="0" max="16" step="0.01" value="0">
-          <span class="tc-readout" id="tcReadout">00.00s / 16.00s</span>
+          <input id="scrubber" type="range" min="0" max="26" step="0.01" value="0">
+          <span class="tc-readout" id="tcReadout">00.00s / 26.00s</span>
         </div>
       </div>
     </div>
@@ -574,8 +726,76 @@
     <div class="inspector-col">
       <div class="tabs">
         <div class="tab active" data-pane="paramsPane">🎨 Tasarım</div>
-        <div class="tab" data-pane="mediaSfxPane">🖼️ Medya & Ses</div>
+        <div class="tab" data-pane="mediaBinPane">📁 Medya Havuzu</div>
+        <div class="tab" data-pane="mediaSfxPane">🔊 Ses & Video</div>
         <div class="tab" data-pane="codePane">⚡ Sahne Kodu</div>
+      </div>
+
+      <!-- PANE: MEDIA BIN (ASSET POOL FOR MOTION GRAPHICS) -->
+      <div class="pane" id="mediaBinPane">
+        <div class="group">
+          <div class="group-head">
+            <span class="group-title">Medya & Varlık Havuzu</span>
+            <span style="font-size:10.5px;color:var(--ok);font-weight:700;">Hazır Varlıklar</span>
+          </div>
+          <div style="font-size:11.5px;color:var(--muted);line-height:1.4;">
+            Projede kullanılan görseller, logolar ve telefon ekran görüntüleri. Tek tıkla aktif sahneye ekle:
+          </div>
+          <div class="media-bin-grid" id="mediaBinGrid">
+            <!-- Dynamically populated or pre-rendered cards -->
+            <div class="media-card">
+              <img src="/assets/kampus_logo.png" class="media-card-thumb" alt="Kampüs Logo">
+              <div class="media-card-body">
+                <span class="media-card-title">kampus_logo.png</span>
+                <div class="media-card-actions">
+                  <button type="button" class="btn-ok" onclick="applyAssetToCurrentScene('logo', '/assets/kampus_logo.png')">+ Ekle</button>
+                </div>
+              </div>
+            </div>
+            <div class="media-card">
+              <img src="/assets/phone_screen_01.png" class="media-card-thumb" alt="Ana Ekran">
+              <div class="media-card-body">
+                <span class="media-card-title">phone_screen_01.png</span>
+                <div class="media-card-actions">
+                  <button type="button" class="btn-acc" onclick="applyAssetToCurrentScene('screen', '/assets/phone_screen_01.png')">+ Ekle</button>
+                </div>
+              </div>
+            </div>
+            <div class="media-card">
+              <img src="/assets/phone_screen_02.png" class="media-card-thumb" alt="Pizza Bulls">
+              <div class="media-card-body">
+                <span class="media-card-title">phone_screen_02.png</span>
+                <div class="media-card-actions">
+                  <button type="button" class="btn-acc" onclick="applyAssetToCurrentScene('screen', '/assets/phone_screen_02.png')">+ Ekle</button>
+                </div>
+              </div>
+            </div>
+            <div class="media-card">
+              <img src="/assets/phone_screen_03.png" class="media-card-thumb" alt="Mezesell">
+              <div class="media-card-body">
+                <span class="media-card-title">phone_screen_03.png</span>
+                <div class="media-card-actions">
+                  <button type="button" class="btn-acc" onclick="applyAssetToCurrentScene('screen', '/assets/phone_screen_03.png')">+ Ekle</button>
+                </div>
+              </div>
+            </div>
+            <div class="media-card">
+              <img src="/assets/phone_screen_04.png" class="media-card-thumb" alt="Menü Kartları">
+              <div class="media-card-body">
+                <span class="media-card-title">phone_screen_04.png</span>
+                <div class="media-card-actions">
+                  <button type="button" class="btn-acc" onclick="applyAssetToCurrentScene('screen', '/assets/phone_screen_04.png')">+ Ekle</button>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div style="margin-top:6px;">
+            <label class="btn" style="justify-content:center;width:100%;padding:8px;font-size:11.5px;">
+              ➕ Bilgisayardan Görsel/Varlık Ekle
+              <input type="file" id="mediaBinUploadInput" accept="image/*" style="display:none;">
+            </label>
+          </div>
+        </div>
       </div>
 
       <!-- PANE 1: COMPACT DESIGN & MATH -->
@@ -1552,12 +1772,37 @@ function rebuildSceneTimelineAndSelect() {
   selEl.innerHTML = '';
   if (sfxListEl) sfxListEl.innerHTML = '';
 
+  const dur = Math.max(1, PROJECT.duration || 16);
+
+  // Clear Multi-Track Lanes
+  const trackTextClips = document.getElementById('trackTextClips');
+  const trackVisualClips = document.getElementById('trackVisualClips');
+  const trackSfxClips = document.getElementById('trackSfxClips');
+  const multiTrackRuler = document.getElementById('multiTrackRuler');
+  if (trackTextClips) trackTextClips.innerHTML = '';
+  if (trackVisualClips) trackVisualClips.innerHTML = '';
+  if (trackSfxClips) trackSfxClips.innerHTML = '';
+
+  // Render Multi-Track Ruler Ticks
+  if (multiTrackRuler) {
+    multiTrackRuler.innerHTML = '';
+    const step = dur <= 10 ? 1 : dur <= 30 ? 2 : 5;
+    for (let sec = 0; sec <= dur; sec += step) {
+      const tick = document.createElement('div');
+      tick.className = 'ruler-tick';
+      tick.style.left = `${(sec / dur) * 100}%`;
+      tick.textContent = `${sec}s`;
+      multiTrackRuler.appendChild(tick);
+    }
+  }
+
   PROJECT.scenes.forEach((sc, idx) => {
+    // 1. Storyboard Pill
     const btn = document.createElement('button');
     btn.className = 'scene-pill' + (idx === 0 ? ' active' : '');
     btn.textContent = sc.name;
     btn.addEventListener('click', () => {
-      curTime = sc.start + 0.35;
+      curTime = sc.start + 0.05;
       document.getElementById('scrubber').value = curTime;
       selEl.value = String(idx);
       document.getElementById('sceneCodeEditor').value = PROJECT.scenes[idx].code;
@@ -1567,11 +1812,69 @@ function rebuildSceneTimelineAndSelect() {
     });
     pillsEl.appendChild(btn);
 
+    // 2. Select Option
     const opt = document.createElement('option');
     opt.value = String(idx);
     opt.textContent = `${sc.name} (${sc.start}s – ${sc.end}s)`;
     selEl.appendChild(opt);
 
+    // 3. Multi-Track Visual Clips
+    const leftPct = (sc.start / dur) * 100;
+    const widthPct = Math.max(1.5, ((sc.end - sc.start) / dur) * 100);
+
+    // Visual / Scene Lane Clip
+    if (trackVisualClips) {
+      const vClip = document.createElement('div');
+      vClip.className = 'clip-block type-video';
+      vClip.style.left = `${leftPct}%`;
+      vClip.style.width = `${widthPct}%`;
+      vClip.textContent = sc.name;
+      vClip.title = `${sc.name} (${sc.start}s - ${sc.end}s)`;
+      vClip.addEventListener('click', () => {
+        curTime = sc.start + 0.05;
+        document.getElementById('scrubber').value = curTime;
+        selEl.value = String(idx);
+        document.getElementById('sceneCodeEditor').value = PROJECT.scenes[idx].code;
+        updateTrimmerInputs(idx);
+        drawFrame(curTime);
+      });
+      trackVisualClips.appendChild(vClip);
+    }
+
+    // Text Lane Clip
+    if (trackTextClips) {
+      const tClip = document.createElement('div');
+      tClip.className = 'clip-block type-text';
+      tClip.style.left = `${leftPct}%`;
+      tClip.style.width = `${widthPct}%`;
+      tClip.textContent = `T: ${P.headline1 || sc.name}`;
+      tClip.title = `Yazı: ${P.headline1 || sc.name}`;
+      tClip.addEventListener('click', () => {
+        curTime = sc.start + 0.05;
+        document.getElementById('scrubber').value = curTime;
+        selEl.value = String(idx);
+        document.getElementById('sceneCodeEditor').value = PROJECT.scenes[idx].code;
+        updateTrimmerInputs(idx);
+        drawFrame(curTime);
+      });
+      trackTextClips.appendChild(tClip);
+    }
+
+    // SFX Lane Clip
+    if (trackSfxClips && sc.sfx && sc.sfx !== 'none') {
+      const sClip = document.createElement('div');
+      sClip.className = 'clip-block type-sfx';
+      sClip.style.left = `${leftPct}%`;
+      sClip.style.width = `${Math.min(widthPct, 12)}%`;
+      sClip.textContent = `🔊 ${sc.sfx}`;
+      sClip.title = `SFX: ${sc.sfx}`;
+      sClip.addEventListener('click', () => {
+        triggerLiveSfx(sc.sfx);
+      });
+      trackSfxClips.appendChild(sClip);
+    }
+
+    // 4. SFX Assign Row
     if (sfxListEl) {
       const row = document.createElement('div');
       row.className = 'field-box';
@@ -1642,6 +1945,194 @@ document.getElementById('applyTrimBtn').addEventListener('click', () => {
   drawFrame(curTime);
   flashUpdated(`⏱️ ${sc.name} (${sc.start}s – ${sc.end}s) Ayarlandı`);
 });
+
+// View Toggle: Storyboard vs Multi-Track
+const btnViewStoryboard = document.getElementById('btnViewStoryboard');
+const btnViewMultiTrack = document.getElementById('btnViewMultiTrack');
+const storyboardContainer = document.getElementById('storyboardContainer');
+const multiTrackContainer = document.getElementById('multiTrackContainer');
+
+if (btnViewStoryboard && btnViewMultiTrack) {
+  btnViewStoryboard.addEventListener('click', () => {
+    btnViewStoryboard.classList.add('active');
+    btnViewMultiTrack.classList.remove('active');
+    storyboardContainer.style.display = 'block';
+    multiTrackContainer.style.display = 'none';
+  });
+  btnViewMultiTrack.addEventListener('click', () => {
+    btnViewMultiTrack.classList.add('active');
+    btnViewStoryboard.classList.remove('active');
+    storyboardContainer.style.display = 'none';
+    multiTrackContainer.style.display = 'block';
+  });
+}
+
+// Multi-Track Seeking (Clicking ruler or lanes jumps playhead)
+if (multiTrackContainer) {
+  multiTrackContainer.addEventListener('click', e => {
+    if (e.target.closest('.clip-block')) return; // handled by clip click
+    const rect = multiTrackContainer.getBoundingClientRect();
+    const clickX = e.clientX - rect.left;
+    const pct = clamp(clickX / rect.width, 0, 1);
+    const dur = PROJECT.duration || 16;
+    curTime = pct * dur;
+    document.getElementById('scrubber').value = curTime;
+    if (ASSETS.bgVideoEl && ASSETS.bgVideoEl.duration) {
+      ASSETS.bgVideoEl.currentTime = (curTime + (ASSETS.videoOffset || 0)) % ASSETS.bgVideoEl.duration;
+    }
+    drawFrame(curTime);
+  });
+}
+
+// Timeline Tools: Split (✂️ Böl), Duplicate (📑 Çoğalt), Delete (🗑️ Sil)
+document.getElementById('splitAtPlayheadBtn').addEventListener('click', () => {
+  const actIdx = activeSceneIndex(curTime);
+  const sc = PROJECT?.scenes?.[actIdx];
+  if (!sc) return;
+  if (curTime <= sc.start + 0.2 || curTime >= sc.end - 0.2) {
+    alert('Bölmek için oynatma kafasını sahnenin ortasında bir yere getirin.');
+    return;
+  }
+  pushHistory();
+  const originalEnd = sc.end;
+  sc.end = Number(curTime.toFixed(2));
+  const newScene = {
+    name: `${sc.name} (Bölüm 2)`,
+    start: Number(curTime.toFixed(2)),
+    end: originalEnd,
+    sfx: sc.sfx || 'whoosh',
+    code: sc.code
+  };
+  PROJECT.scenes.splice(actIdx + 1, 0, newScene);
+  compileAllScenes();
+  rebuildSceneTimelineAndSelect();
+  document.getElementById('sceneSelectBox').value = String(actIdx + 1);
+  updateTrimmerInputs(actIdx + 1);
+  drawFrame(curTime);
+  flashUpdated(`✂️ Sahne ${curTime.toFixed(1)}s Noktasından İkiye Bölündü`);
+});
+
+document.getElementById('duplicateSceneBtn').addEventListener('click', () => {
+  const selEl = document.getElementById('sceneSelectBox');
+  const idx = parseInt(selEl.value || '0', 10);
+  const sc = PROJECT?.scenes?.[idx];
+  if (!sc) return;
+  pushHistory();
+  const durScene = sc.end - sc.start;
+  const newStart = sc.end;
+  const newEnd = Number((sc.end + durScene).toFixed(2));
+  const clone = {
+    name: `${sc.name} (Kopya)`,
+    start: newStart,
+    end: newEnd,
+    sfx: sc.sfx || 'pop',
+    code: sc.code
+  };
+  PROJECT.scenes.splice(idx + 1, 0, clone);
+  if (newEnd > (PROJECT.duration || 16)) {
+    PROJECT.duration = Math.ceil(newEnd);
+    document.getElementById('scrubber').max = PROJECT.duration;
+  }
+  compileAllScenes();
+  rebuildSceneTimelineAndSelect();
+  selEl.value = String(idx + 1);
+  updateTrimmerInputs(idx + 1);
+  curTime = newStart;
+  document.getElementById('scrubber').value = curTime;
+  drawFrame(curTime);
+  flashUpdated(`📑 Sahne Çoğaltıldı`);
+});
+
+document.getElementById('deleteSceneBtn').addEventListener('click', () => {
+  if (PROJECT.scenes.length <= 1) {
+    alert('Projeden son sahneyi silemezsiniz.');
+    return;
+  }
+  const selEl = document.getElementById('sceneSelectBox');
+  const idx = parseInt(selEl.value || '0', 10);
+  pushHistory();
+  PROJECT.scenes.splice(idx, 1);
+  compileAllScenes();
+  rebuildSceneTimelineAndSelect();
+  const nextIdx = Math.min(idx, PROJECT.scenes.length - 1);
+  selEl.value = String(nextIdx);
+  updateTrimmerInputs(nextIdx);
+  curTime = PROJECT.scenes[nextIdx].start;
+  document.getElementById('scrubber').value = curTime;
+  drawFrame(curTime);
+  flashUpdated(`🗑️ Sahne Silindi`);
+});
+
+// Safe Zone Toggle Button
+const safeZoneBtn = document.getElementById('safeZoneToggleBtn');
+const reelsSafeZone = document.getElementById('reelsSafeZone');
+if (safeZoneBtn && reelsSafeZone) {
+  safeZoneBtn.addEventListener('click', () => {
+    const isShowing = reelsSafeZone.style.display !== 'none';
+    reelsSafeZone.style.display = isShowing ? 'none' : 'flex';
+    safeZoneBtn.classList.toggle('btn-ok', !isShowing);
+    flashUpdated(!isShowing ? '🎯 Reels/TikTok Kılavuzu Açıldı' : '🎯 Kılavuz Gizlendi');
+  });
+}
+
+// Media Pool Asset Insertion
+function applyAssetToCurrentScene(type, src) {
+  const img = new Image();
+  img.onload = () => {
+    if (type === 'logo') {
+      ASSETS.logoImg = img;
+      flashUpdated('🏷️ Logo Projeye Tanımlandı');
+    } else {
+      ASSETS.screenImg = img;
+      const idx = activeSceneIndex(curTime);
+      const sc = PROJECT.scenes[idx];
+      if (sc) {
+        pushHistory();
+        sc.code = `const k = spring(lt * 1.4);
+g.save();
+g.translate(W/2, H/2 + (1 - k) * 120);
+g.scale(0.85 + 0.15 * k, 0.85 + 0.15 * k);
+drawScreen(0, 20, 1020, 580, 24);
+g.restore();
+const s = fit(P.headline1, 1400, P.titleSize * 0.42);
+centerText(P.headline1, W/2, 120, s, P.textColor);`;
+        compileAllScenes();
+        document.getElementById('sceneCodeEditor').value = sc.code;
+        flashUpdated(`🖼️ ${sc.name} İçine Mockup Yerleştirildi`);
+      }
+    }
+    drawFrame(curTime);
+  };
+  img.src = src;
+}
+
+const mediaBinUploadInput = document.getElementById('mediaBinUploadInput');
+if (mediaBinUploadInput) {
+  mediaBinUploadInput.addEventListener('change', e => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const url = URL.createObjectURL(file);
+    const grid = document.getElementById('mediaBinGrid');
+    if (grid) {
+      const card = document.createElement('div');
+      card.className = 'media-card';
+      card.innerHTML = `
+        <img src="${url}" class="media-card-thumb" alt="${file.name}">
+        <div class="media-card-body">
+          <span class="media-card-title">${file.name}</span>
+          <div class="media-card-actions">
+            <button type="button" class="btn-acc">+ Sahneye Ekle</button>
+          </div>
+        </div>
+      `;
+      card.querySelector('button').addEventListener('click', () => {
+        applyAssetToCurrentScene('screen', url);
+      });
+      grid.appendChild(card);
+    }
+    flashUpdated(`📁 ${file.name} Medya Havuzuna Eklendi`);
+  });
+}
 
 document.getElementById('sceneSelectBox').addEventListener('change', e => {
   const idx = parseInt(e.target.value, 10);
@@ -2657,6 +3148,10 @@ function tick(now) {
     if (sc && sc.sfx && sc.sfx !== 'none') triggerLiveSfx(sc.sfx);
   }
   [...document.querySelectorAll('.scene-pill')].forEach((el, i) => el.classList.toggle('active', i === actIdx));
+  const playheadNeedle = document.getElementById('playheadNeedle');
+  if (playheadNeedle && dur > 0) {
+    playheadNeedle.style.left = `${(curTime / dur) * 100}%`;
+  }
   requestAnimationFrame(tick);
 }
 
