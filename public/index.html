@@ -908,9 +908,11 @@ const typed = (str, k) => [...String(str || '')].slice(0, Math.floor([...String(
 
 function font(size, w = 900, fam = P.displayFont) {
   g.font = `${w} ${size}px "${fam || 'Archivo'}", sans-serif`;
+  return g.font;
 }
 function mono(size, w = 500) {
   g.font = `${w} ${size}px "${P.monoFont || 'JetBrains Mono'}", monospace`;
+  return g.font;
 }
 function capH(size, w = 900) {
   font(size, w);
@@ -966,47 +968,88 @@ const ASSETS = {
   logoImg: null,
   screenImg: null,
   videoOffset: 0.0,
-  videoVolume: 0.8
+  videoVolume: 0.8,
+  preloadedLogo: null,
+  phoneScreens: []
 };
 
+// Automatically preload extracted reference assets if present
+try {
+  const lImg = new Image();
+  lImg.onload = () => { ASSETS.preloadedLogo = lImg; };
+  lImg.src = '/assets/kampus_logo.png';
+  [1, 2, 3, 4].forEach(n => {
+    const sImg = new Image();
+    sImg.src = `/assets/phone_screen_0${n}.png`;
+    ASSETS.phoneScreens[n] = sImg;
+  });
+} catch (e) {}
+
 function drawLogo(cx = W / 2, cy = H / 2, size = 180) {
-  if (!ASSETS.logoImg) return false;
-  const aspect = (ASSETS.logoImg.naturalWidth || 1) / Math.max(1, ASSETS.logoImg.naturalHeight || 1);
-  const w = aspect >= 1 ? size : size * aspect;
-  const h = aspect >= 1 ? size / aspect : size;
-  g.drawImage(ASSETS.logoImg, cx - w / 2, cy - h / 2, w, h);
+  const img = ASSETS.logoImg || ASSETS.preloadedLogo;
+  if (img && img.naturalWidth) {
+    const aspect = img.naturalWidth / Math.max(1, img.naturalHeight);
+    const w = aspect >= 1 ? size : size * aspect;
+    const h = aspect >= 1 ? size / aspect : size;
+    g.drawImage(img, cx - w / 2, cy - h / 2, w, h);
+    return true;
+  }
+  g.save();
+  const rad = size / 2;
+  g.fillStyle = P.accentColor || '#B70116';
+  g.beginPath();
+  g.roundRect(cx - rad, cy - rad, size, size, size * 0.24);
+  g.fill();
+  g.fillStyle = '#FFFFFF';
+  font(size * 0.44, 900);
+  g.textAlign = 'center';
+  g.textBaseline = 'middle';
+  g.fillText((P.brandName || 'K')[0].toUpperCase(), cx, cy);
+  g.restore();
   return true;
 }
 
-function drawScreen(cx = W / 2, cy = H / 2, w = 960, h = 560, radius = 24) {
-  const finalW = Math.min(w, W * 0.86);
-  const finalH = Math.round(finalW * (h / w));
+function drawScreen(cx = W / 2, cy = H / 2, w = 960, h = 560, radius = 24, customImg = null) {
+  const finalW = w;
+  const finalH = h;
+  const img = customImg || ASSETS.screenImg;
   g.save();
-  g.shadowColor = 'rgba(15, 23, 42, 0.42)';
-  g.shadowBlur = 48;
-  g.shadowOffsetY = 18;
-  g.fillStyle = P.surface || '#0F172A';
+  // Phone shadow
+  g.shadowColor = 'rgba(15, 23, 42, 0.22)';
+  g.shadowBlur = 36;
+  g.shadowOffsetY = 16;
+  // Sleek titanium dark border
+  g.fillStyle = '#18181C';
   g.beginPath();
-  g.roundRect(cx - finalW / 2, cy - finalH / 2, finalW, finalH, radius);
+  g.roundRect(cx - finalW / 2 - 3, cy - finalH / 2 - 3, finalW + 6, finalH + 6, radius + 3);
   g.fill();
   g.shadowColor = 'transparent';
+
+  // Screen inner fill & clip
+  g.beginPath();
+  g.roundRect(cx - finalW / 2, cy - finalH / 2, finalW, finalH, radius);
   g.clip();
-  if (ASSETS.screenImg) {
-    g.drawImage(ASSETS.screenImg, cx - finalW / 2, cy - finalH / 2, finalW, finalH);
+
+  if (img && img.naturalWidth) {
+    g.drawImage(img, cx - finalW / 2, cy - finalH / 2, finalW, finalH);
   } else {
-    g.fillStyle = '#0F172A';
+    // Sleek light phone UI mockup
+    g.fillStyle = '#FFFFFF';
     g.fillRect(cx - finalW / 2, cy - finalH / 2, finalW, finalH);
-    g.fillStyle = P.accentColor || '#FF5A1F';
-    g.fillRect(cx - finalW / 2, cy - finalH / 2, finalW, 46);
-    mono(Math.min(20, Math.round(finalW * 0.024)), 600);
+    g.fillStyle = P.accentColor || '#B70116';
+    g.fillRect(cx - finalW / 2, cy - finalH / 2, finalW, Math.min(60, finalH * 0.1));
+    font(Math.min(18, Math.round(finalW * 0.045)), 800);
     g.fillStyle = '#FFFFFF';
     g.textAlign = 'center';
-    g.fillText(P.brandName + ' // UI SCREENSHOT PREVIEW', cx, cy + 8);
+    g.textBaseline = 'middle';
+    g.fillText(P.brandName || 'APP', cx, cy - finalH / 2 + Math.min(30, finalH * 0.05));
   }
   g.restore();
+
+  // Screen subtle bezel outline
   g.save();
-  g.strokeStyle = P.accentColor || '#FF5A1F';
-  g.lineWidth = 3;
+  g.strokeStyle = '#27272A';
+  g.lineWidth = 1.5;
   g.beginPath();
   g.roundRect(cx - finalW / 2, cy - finalH / 2, finalW, finalH, radius);
   g.stroke();
