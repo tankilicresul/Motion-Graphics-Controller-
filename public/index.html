@@ -1,0 +1,2862 @@
+<!doctype html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>ATLAS Studio — Yaratıcı Motion Tasarım Stüdyosu</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;700;900&family=Bebas+Neue&family=JetBrains+Mono:wght@400;500;600&family=Outfit:wght@400;500;600;700;900&family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=Space+Grotesk:wght@500;700&family=Syne:wght@700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #EEF4F9;
+    --surface: #FFFFFF;
+    --surface-2: #F5F9FD;
+    --surface-3: #E6F0FA;
+    --border: rgba(14, 165, 233, 0.16);
+    --border-hover: rgba(14, 165, 233, 0.38);
+    --text: #0F172A;
+    --muted: #52657C;
+    --acc: #FF5A1F;       /* Canlı Turuncu */
+    --blue: #0EA5E9;      /* Parlak Mavi */
+    --blue-deep: #2563EB; /* Derin Mavi */
+    --ok: #10B981;        /* Zümrüt Yeşili */
+    --r-lg: 18px;
+    --r-md: 12px;
+    --r-sm: 9px;
+  }
+  * { box-sizing: border-box; }
+  html, body {
+    margin: 0; height: 100%;
+    background:
+      radial-gradient(circle at 8% 12%, rgba(255, 90, 31, 0.10), transparent 38%),
+      radial-gradient(circle at 52% 8%, rgba(14, 165, 233, 0.12), transparent 42%),
+      radial-gradient(circle at 90% 85%, rgba(16, 185, 129, 0.12), transparent 40%),
+      var(--bg);
+    color: var(--text);
+    font-family: "Outfit", system-ui, -apple-system, sans-serif;
+    overflow: hidden; -webkit-font-smoothing: antialiased;
+  }
+
+  /* Custom subtle scrollbars */
+  ::-webkit-scrollbar { width: 5px; height: 5px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: rgba(14, 165, 233, 0.25); border-radius: 99px; }
+  ::-webkit-scrollbar-thumb:hover { background: rgba(255, 90, 31, 0.45); }
+
+  /* Main App Shell: padded floating bento layout with zero wasted space */
+  .app {
+    display: grid;
+    grid-template-rows: 56px 1fr;
+    height: 100vh;
+    padding: 10px 12px 12px;
+    gap: 10px;
+  }
+
+  /* Floating Top Navigation Bar */
+  .topbar {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 0 16px; background: var(--surface);
+    border: 1px solid var(--border); border-radius: var(--r-lg);
+    box-shadow: 0 8px 26px rgba(15, 23, 42, 0.06);
+  }
+  .brand-area { display: flex; align-items: center; gap: 12px; }
+  .brand {
+    display: flex; align-items: center; gap: 9px;
+    font-weight: 800; font-size: 16px; letter-spacing: -0.02em; color: var(--text);
+  }
+  .brand-dot {
+    width: 14px; height: 14px; border-radius: 5px;
+    background: linear-gradient(135deg, var(--acc), var(--blue), var(--ok));
+    box-shadow: 0 3px 12px rgba(255, 90, 31, 0.45);
+  }
+  .pill-badge {
+    font-size: 11.5px; font-weight: 600; padding: 4px 11px; border-radius: 99px;
+    background: rgba(16, 185, 129, 0.10); color: #065F46; border: 1px solid rgba(16, 185, 129, 0.28);
+    display: inline-flex; align-items: center; gap: 6px;
+  }
+  .pill-badge .live-dot {
+    width: 7px; height: 7px; border-radius: 50%; background: var(--ok);
+    box-shadow: 0 0 8px var(--ok);
+  }
+
+  .top-actions { display: flex; align-items: center; gap: 8px; }
+
+  button, .btn {
+    all: unset; cursor: pointer; font-family: "Outfit", sans-serif;
+    font-size: 12.5px; font-weight: 600; padding: 7px 13px;
+    background: var(--surface-2); border: 1px solid var(--border);
+    border-radius: 99px; color: var(--text);
+    display: inline-flex; align-items: center; gap: 6px;
+    transition: all 0.16s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  button:hover {
+    background: var(--surface-3); border-color: var(--border-hover);
+    transform: translateY(-1px);
+  }
+  button:active { transform: translateY(0) scale(0.98); }
+
+  .btn-acc {
+    background: linear-gradient(135deg, var(--acc), #FF7844);
+    color: #FFFFFF; font-weight: 700; border: none;
+    box-shadow: 0 6px 18px rgba(255, 90, 31, 0.32);
+  }
+  .btn-acc:hover {
+    background: linear-gradient(135deg, #FF4B0A, #FF6D33);
+    box-shadow: 0 8px 22px rgba(255, 90, 31, 0.45);
+    color: #FFFFFF;
+  }
+  .btn-claude {
+    background: rgba(14, 165, 233, 0.12); color: #0369A1;
+    border-color: rgba(14, 165, 233, 0.35);
+  }
+  .btn-claude:hover { background: rgba(14, 165, 233, 0.20); border-color: var(--blue); }
+  .btn-ok {
+    background: rgba(16, 185, 129, 0.12); color: #047857;
+    border-color: rgba(16, 185, 129, 0.35);
+  }
+  .btn-ok:hover { background: rgba(16, 185, 129, 0.22); border-color: var(--ok); }
+
+  .ratio-switch {
+    display: inline-flex; align-items: center; background: var(--surface-2);
+    border: 1px solid var(--border); border-radius: 99px; padding: 2px; gap: 2px;
+  }
+  .ratio-btn {
+    all: unset; cursor: pointer; padding: 5px 9px; font-size: 11.5px; font-weight: 700;
+    border-radius: 99px; color: var(--muted); transition: all 0.14s ease;
+    display: inline-flex; align-items: center; gap: 4px;
+  }
+  .ratio-btn:hover { color: var(--text); background: rgba(14, 165, 233, 0.08); }
+  .ratio-btn.active {
+    background: linear-gradient(135deg, var(--blue), var(--blue-deep));
+    color: #FFFFFF; box-shadow: 0 2px 8px rgba(14, 165, 233, 0.35);
+  }
+  .workspace {
+    --left-w: 425px;
+    --right-w: 415px;
+    --bottom-h: 225px;
+    display: grid;
+    grid-template-columns: var(--left-w) 12px minmax(280px, 1fr) 12px var(--right-w);
+    gap: 0;
+    height: calc(100vh - 88px);
+    min-height: 0;
+  }
+
+  /* Interactive Splitter / Resizer Lines between the 4 panels */
+  .resizer-v, .resizer-h {
+    display: flex; align-items: center; justify-content: center;
+    position: relative; z-index: 15; user-select: none;
+    transition: background 0.15s ease;
+  }
+  .resizer-v { cursor: col-resize; width: 12px; height: 100%; }
+  .resizer-h { cursor: row-resize; height: 12px; width: 100%; }
+
+  .resizer-v::after {
+    content: "";
+    width: 4px; height: 48px; border-radius: 99px;
+    background: rgba(14, 165, 233, 0.28);
+    transition: all 0.18s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  .resizer-h::after {
+    content: "";
+    height: 4px; width: 56px; border-radius: 99px;
+    background: rgba(14, 165, 233, 0.28);
+    transition: all 0.18s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  .resizer-v:hover::after, .resizer-v.dragging::after {
+    height: 92px; width: 5px;
+    background: linear-gradient(180deg, var(--acc), var(--blue), var(--ok));
+    box-shadow: 0 0 12px rgba(255, 90, 31, 0.45);
+  }
+  .resizer-h:hover::after, .resizer-h.dragging::after {
+    width: 110px; height: 5px;
+    background: linear-gradient(90deg, var(--acc), var(--blue), var(--ok));
+    box-shadow: 0 0 12px rgba(14, 165, 233, 0.45);
+  }
+  body.is-resizing-v, body.is-resizing-v * { cursor: col-resize !important; user-select: none !important; }
+  body.is-resizing-h, body.is-resizing-h * { cursor: row-resize !important; user-select: none !important; }
+
+  /* Left Card: AI Co-Pilot & Presets */
+  .chat-col {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: var(--r-lg); display: flex; flex-direction: column;
+    height: 100%; min-width: 220px; overflow: hidden; box-shadow: 0 10px 30px rgba(15, 23, 42, 0.06);
+  }
+  .mode-switch {
+    display: grid; grid-template-columns: 1fr 1fr; padding: 5px; margin: 10px 10px 6px;
+    background: var(--surface-2); border-radius: 13px; border: 1px solid var(--border); gap: 4px;
+  }
+  .mode-btn {
+    justify-content: center; padding: 7px 8px; font-size: 12px; font-weight: 600;
+    border-radius: 9px; border: none; background: transparent; color: var(--muted);
+  }
+  .mode-btn:hover { background: rgba(14, 165, 233, 0.08); transform: none; }
+  .mode-btn.active {
+    background: linear-gradient(135deg, var(--blue), var(--blue-deep)); color: #FFFFFF;
+    box-shadow: 0 4px 12px rgba(14, 165, 233, 0.28); border: none;
+  }
+
+  .chips-wrap {
+    padding: 4px 10px 8px; border-bottom: 1px solid var(--border);
+  }
+  .chips-label {
+    font-size: 10.5px; font-weight: 700; color: var(--blue-deep);
+    margin: 0 2px 6px; display: block; text-transform: uppercase; letter-spacing: 0.04em;
+  }
+  .chips {
+    display: flex; flex-wrap: wrap; gap: 5px;
+  }
+  .chip {
+    font-size: 11.5px; font-weight: 600; padding: 5px 10px;
+    border-radius: 99px; background: var(--surface-2);
+    border: 1px solid var(--border); color: var(--text); cursor: pointer;
+    transition: all 0.14s ease;
+  }
+  .chip:hover {
+    background: rgba(255, 90, 31, 0.10); border-color: var(--acc); color: var(--acc);
+    transform: translateY(-1px);
+  }
+
+  .messages {
+    flex: 1; overflow-y: auto; padding: 12px; display: flex; flex-direction: column; gap: 10px;
+  }
+  .msg {
+    padding: 11px 13px; font-size: 13px; line-height: 1.5;
+    border-radius: 14px; border: 1px solid var(--border); background: var(--surface-2);
+    color: var(--text);
+  }
+  .msg.user {
+    align-self: flex-end;
+    background: linear-gradient(135deg, var(--acc), #FF7A45);
+    color: #FFFFFF;
+    border: none; border-bottom-right-radius: 4px; max-width: 88%;
+    box-shadow: 0 6px 16px rgba(255, 90, 31, 0.22);
+  }
+  .msg.bot {
+    align-self: flex-start; border-bottom-left-radius: 4px; max-width: 96%;
+    background: #FFFFFF; border-color: rgba(14, 165, 233, 0.22);
+    box-shadow: 0 4px 14px rgba(15, 23, 42, 0.04);
+  }
+  .msg .diff-pill {
+    display: inline-block; margin-top: 6px; margin-right: 4px;
+    font-size: 11px; font-weight: 700; padding: 2px 8px; border-radius: 99px;
+    background: rgba(16, 185, 129, 0.14); border: 1px solid rgba(16, 185, 129, 0.35); color: #047857;
+  }
+  .inline-actions {
+    display: flex; flex-direction: column; gap: 6px; margin-top: 10px;
+    padding-top: 10px; border-top: 1px solid var(--border);
+  }
+  .inline-actions button { justify-content: center; width: 100%; padding: 8px 10px; border-radius: 10px; }
+
+  .chat-input-wrap {
+    padding: 10px; border-top: 1px solid var(--border); background: var(--surface-2);
+  }
+  .chat-pill {
+    display: flex; align-items: center; gap: 6px;
+    background: #FFFFFF; border: 1.5px solid rgba(14, 165, 233, 0.30);
+    border-radius: 99px; padding: 4px 5px 4px 14px;
+    transition: border-color 0.15s ease, box-shadow 0.15s ease;
+  }
+  .chat-pill:focus-within {
+    border-color: var(--acc); box-shadow: 0 0 0 3px rgba(255, 90, 31, 0.16);
+  }
+  .chat-pill input {
+    flex: 1; background: transparent; border: none; color: var(--text);
+    font-size: 13px; font-family: inherit; padding: 5px 0;
+  }
+  .chat-pill input:focus { outline: none; }
+  .icon-btn {
+    width: 32px; height: 32px; padding: 0; border-radius: 50%;
+    justify-content: center; background: var(--surface-2);
+  }
+  #micBtn.listening { background: var(--acc); color: #fff; box-shadow: 0 0 12px var(--acc); }
+
+  /* Center Card: Ambient Stage + Storyboard Timeline Dock */
+  .stage-col {
+    display: grid;
+    grid-template-rows: minmax(180px, 1fr) 12px var(--bottom-h);
+    gap: 0;
+    min-width: 0; min-height: 0; height: 100%;
+  }
+  .canvas-holder {
+    position: relative;
+    background: linear-gradient(145deg, #FFFFFF 0%, #F0F7FF 50%, #ECFDF5 100%);
+    border: 1px solid var(--border); border-radius: var(--r-lg);
+    display: flex; align-items: center; justify-content: center; padding: 14px; overflow: hidden;
+    box-shadow: 0 10px 30px rgba(15, 23, 42, 0.06);
+    min-height: 0; min-width: 0;
+  }
+  /* Dynamic ambient glow behind the video canvas */
+  .ambient-glow {
+    position: absolute; width: 72%; height: 72%; border-radius: 50%;
+    background: linear-gradient(135deg, var(--acc), var(--blue), var(--ok));
+    filter: blur(90px); opacity: 0.22;
+    pointer-events: none; transition: background 0.35s ease;
+  }
+  .canvas-frame {
+    width: 100%; max-height: 100%;
+    aspect-ratio: 16 / 9; position: relative; z-index: 2;
+    border-radius: 14px; overflow: hidden;
+    box-shadow: 0 22px 55px rgba(15, 23, 42, 0.18), 0 0 0 3px #FFFFFF;
+  }
+  canvas { width: 100%; height: 100%; display: block; }
+
+  .flash-badge {
+    position: absolute; top: 14px; left: 14px; pointer-events: none; z-index: 10;
+    font-size: 12px; font-weight: 700; padding: 6px 12px; border-radius: 99px;
+    background: var(--ok); color: #FFFFFF;
+    box-shadow: 0 6px 20px rgba(16, 185, 129, 0.4);
+    opacity: 0; transform: translateY(-6px); transition: all 0.2s ease;
+  }
+  .flash-badge.show { opacity: 1; transform: translateY(0); }
+
+  .clipboard-banner {
+    position: absolute; top: 14px; right: 14px; z-index: 20;
+    display: none; align-items: center; gap: 8px;
+    padding: 8px 14px; border-radius: 99px;
+    background: var(--ok); color: #FFFFFF;
+    font-size: 12px; font-weight: 700; cursor: pointer;
+    box-shadow: 0 10px 30px rgba(16, 185, 129, 0.45);
+  }
+  .clipboard-banner.show { display: flex; }
+
+  /* Storyboard Timeline Dock */
+  .timeline-dock {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: var(--r-lg); padding: 12px 14px;
+    display: flex; flex-direction: column; justify-content: flex-start; gap: 10px;
+    box-shadow: 0 8px 24px rgba(15, 23, 42, 0.05);
+    height: 100%; min-height: 76px; overflow-y: auto;
+  }
+  .scene-pills {
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(95px, 1fr)); gap: 6px;
+  }
+  .scene-pill {
+    position: relative; overflow: hidden;
+    font-size: 11.5px; font-weight: 600; padding: 7px 10px;
+    border-radius: 10px; background: var(--surface-2);
+    border: 1px solid var(--border); color: var(--muted);
+    cursor: pointer; text-align: left; justify-content: flex-start;
+  }
+  .scene-pill:hover { border-color: var(--blue); color: var(--blue-deep); }
+  .scene-pill.active {
+    border-color: var(--acc); color: #FFFFFF;
+    background: linear-gradient(135deg, var(--acc), #FF7A45);
+    box-shadow: 0 4px 12px rgba(255, 90, 31, 0.28);
+  }
+  .transport {
+    display: grid; grid-template-columns: auto auto auto 1fr auto; gap: 8px; align-items: center;
+  }
+  .transport input[type="range"] {
+    width: 100%; accent-color: var(--blue); cursor: pointer; height: 5px;
+  }
+  .tc-readout {
+    font-family: "JetBrains Mono", monospace; font-size: 11.5px; font-weight: 600;
+    padding: 4px 9px; border-radius: 8px; background: rgba(14, 165, 233, 0.10);
+    color: var(--blue-deep); border: 1px solid rgba(14, 165, 233, 0.25);
+  }
+
+  /* Right Card: Designer Inspector (Zero wasted space, compact 2-col grids) */
+  .inspector-col {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: var(--r-lg); display: flex; flex-direction: column;
+    height: 100%; overflow: hidden; box-shadow: 0 10px 30px rgba(15, 23, 42, 0.06);
+  }
+  .tabs {
+    display: grid; grid-template-columns: repeat(3, 1fr); padding: 5px; margin: 10px 10px 2px;
+    background: var(--surface-2); border-radius: 13px; border: 1px solid var(--border); gap: 4px;
+  }
+  .tab {
+    padding: 7px 4px; text-align: center; font-size: 11.5px; font-weight: 700;
+    border-radius: 9px; color: var(--muted); cursor: pointer; transition: 0.15s ease;
+  }
+  .tab.active {
+    color: #FFFFFF; background: linear-gradient(135deg, var(--blue), var(--blue-deep));
+    box-shadow: 0 4px 12px rgba(14, 165, 233, 0.28);
+  }
+
+  .pane {
+    flex: 1; overflow-y: auto; padding: 10px 12px 14px;
+    display: none; flex-direction: column; gap: 10px;
+  }
+  .pane.active { display: flex; }
+
+  .group {
+    border: 1px solid var(--border); background: var(--surface-2);
+    border-radius: 14px; padding: 11px 12px;
+    display: flex; flex-direction: column; gap: 9px;
+  }
+  .group-head {
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .group-title {
+    font-size: 11px; font-weight: 800; text-transform: uppercase;
+    letter-spacing: 0.05em; color: var(--blue-deep);
+  }
+
+  /* Curated 1-click theme swatches */
+  .palette-presets {
+    display: grid; grid-template-columns: repeat(6, 1fr); gap: 6px;
+  }
+  .swatch-preset {
+    height: 26px; border-radius: 8px; cursor: pointer;
+    border: 1.5px solid rgba(15, 23, 42, 0.12);
+    display: flex; overflow: hidden; transition: transform 0.14s ease, box-shadow 0.14s ease;
+    padding: 0;
+  }
+  .swatch-preset:hover { transform: scale(1.07); border-color: var(--acc); box-shadow: 0 4px 10px rgba(0,0,0,0.12); }
+  .swatch-preset i { flex: 1; height: 100%; display: block; }
+
+  .color-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 7px; }
+  .color-box {
+    display: flex; align-items: center; gap: 8px; background: #FFFFFF;
+    padding: 6px 9px; border-radius: 10px; border: 1px solid var(--border);
+    font-size: 12px; font-weight: 600; color: var(--text); cursor: pointer;
+  }
+  .color-box:hover { border-color: var(--border-hover); }
+  .color-box input[type="color"] {
+    border: none; width: 22px; height: 22px; border-radius: 6px;
+    background: none; cursor: pointer; padding: 0;
+  }
+
+  /* Compact 2-column slider & input grid */
+  .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+  .mini-ctrl {
+    background: #FFFFFF; border: 1px solid var(--border);
+    border-radius: 10px; padding: 7px 9px;
+    display: flex; flex-direction: column; gap: 5px;
+  }
+  .mini-head {
+    display: flex; justify-content: space-between; align-items: center;
+    font-size: 11.5px; color: var(--text); font-weight: 600;
+  }
+  .mini-head .val {
+    font-family: "JetBrains Mono", monospace; font-size: 11px; color: var(--acc); font-weight: 700;
+  }
+  .mini-ctrl input[type="range"] {
+    width: 100%; accent-color: var(--acc); cursor: pointer; height: 4px; margin: 2px 0;
+  }
+
+  .field-box {
+    background: #FFFFFF; border: 1px solid var(--border);
+    border-radius: 10px; padding: 6px 9px; display: flex; flex-direction: column; gap: 3px;
+  }
+  .field-box:focus-within { border-color: var(--blue); box-shadow: 0 0 0 2px rgba(14, 165, 233, 0.14); }
+  .field-box label { font-size: 10.5px; color: var(--muted); font-weight: 600; }
+  .field-box input, .field-box select {
+    background: transparent; border: none; color: var(--text);
+    font-size: 12.5px; font-weight: 600; font-family: inherit; padding: 2px 0; width: 100%;
+  }
+  .field-box select option { background: #FFFFFF; color: var(--text); }
+  .field-box input:focus, .field-box select:focus { outline: none; }
+
+  /* Live Spring Physics Curve Canvas */
+  .curve-preview {
+    width: 100%; height: 54px; background: #FFFFFF;
+    border: 1px solid var(--border); border-radius: 10px; display: block;
+  }
+
+  textarea.code-editor {
+    width: 100%; flex: 1; min-height: 280px; background: #FFFFFF; color: #0F172A;
+    border: 1px solid var(--border); border-radius: 12px; padding: 12px;
+    font-family: "JetBrains Mono", monospace; font-size: 11.5px; line-height: 1.5;
+    resize: none;
+  }
+  textarea.code-editor:focus { outline: none; border-color: var(--blue); }
+
+  /* Modals */
+  .modal-backdrop {
+    position: fixed; inset: 0; background: rgba(15, 23, 42, 0.45);
+    backdrop-filter: blur(8px);
+    display: none; place-items: center; z-index: 50;
+  }
+  .modal-backdrop.show { display: grid; }
+  .modal {
+    width: min(620px, 94vw); background: var(--surface);
+    border: 1px solid var(--border-hover); border-radius: 22px;
+    padding: 24px; display: flex; flex-direction: column; gap: 14px;
+    box-shadow: 0 30px 90px rgba(15, 23, 42, 0.22);
+  }
+  .pbar { height: 8px; background: var(--surface-3); border-radius: 99px; overflow: hidden; }
+  .pbar > i { display: block; height: 100%; width: 0%; background: linear-gradient(90deg, var(--acc), var(--blue), var(--ok)); transition: width 0.12s; }
+</style>
+</head>
+<body>
+<div class="app">
+  <!-- FLOATING TOPBAR -->
+  <div class="topbar">
+    <div class="brand-area">
+      <div class="brand"><span class="brand-dot" id="brandDot"></span>ATLAS Studio</div>
+      <div class="pill-badge">
+        <span class="live-dot"></span>
+        <span id="projectBadge">ATLAS Showreel 2026</span>
+      </div>
+    </div>
+    <div class="top-actions">
+      <div class="ratio-switch" id="ratioSwitch">
+        <button type="button" class="ratio-btn active" data-ratio="16:9" title="1920x1080 Yatay Video">🖥️ 16:9</button>
+        <button type="button" class="ratio-btn" data-ratio="9:16" title="1080x1920 Dikey Reels / TikTok / Shorts">📱 9:16</button>
+        <button type="button" class="ratio-btn" data-ratio="1:1" title="1080x1080 Kare Video">⬜ 1:1</button>
+      </div>
+      <button id="quickPasteBtn" class="btn-ok" title="Claude Pro'dan kopyaladığın çıktıyı tek tıkla sahneye çeker">📋 Panodan Yükle</button>
+      <button id="claudeModalBtn" class="btn-claude">💠 Claude Pro & MCP</button>
+      <button id="undoBtn" title="Son değişikliği geri al">↶ Geri Al</button>
+      <button id="exportBtn" class="btn-acc">⬇ 1080p MP4 İndir</button>
+    </div>
+  </div>
+
+  <!-- 4-PANEL RESIZABLE STUDIO WORKSPACE -->
+  <div class="workspace" id="workspaceGrid">
+    <!-- PANEL 1 (LEFT): CREATIVE CO-PILOT -->
+    <div class="chat-col">
+      <div class="mode-switch">
+        <button class="mode-btn" id="modeCreateBtn">✨ Yeni Video Üret</button>
+        <button class="mode-btn active" id="modeEditBtn">🎨 Canlı Değiştir</button>
+      </div>
+
+      <div class="messages" id="messages"></div>
+
+      <form class="chat-input-wrap" id="chatForm">
+        <div class="chat-pill">
+          <input id="chatInput" type="text" placeholder="Örn: Yazıyı biraz yavaşlat, rengi mavi yap..." autocomplete="off">
+          <button type="button" id="micBtn" class="icon-btn" title="Sesli komut ver">🎤</button>
+          <button type="submit" class="btn-acc" id="sendBtn" style="padding:7px 14px;">Uygula</button>
+        </div>
+      </form>
+    </div>
+
+    <!-- VERTICAL RESIZER 1 (Left <-> Center) -->
+    <div class="resizer-v" id="resizerLeft" title="Sürükle: Sol paneli boyutlandır | Çift Tıkla: Sıfırla"></div>
+
+    <!-- CENTER COLUMN: PANEL 2 (TOP STAGE) + PANEL 3 (BOTTOM TIMELINE) -->
+    <div class="stage-col" id="stageCol">
+      <div class="canvas-holder" id="canvasHolder">
+        <div class="ambient-glow" id="ambientGlow"></div>
+        <div class="canvas-frame" id="canvasFrame">
+          <canvas id="stageCanvas" width="1920" height="1080"></canvas>
+          <div class="flash-badge" id="flashBadge">✓ Anında Güncellendi</div>
+          <div class="clipboard-banner" id="clipboardBanner">
+            <span>✨ Panoda yeni Claude Pro videosu hazır! Yüklemek için tıkla</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- HORIZONTAL RESIZER (Top Stage <-> Bottom Timeline) -->
+      <div class="resizer-h" id="resizerStage" title="Sürükle: Sahne ve Zaman Çizgisini boyutlandır | Çift Tıkla: Sıfırla"></div>
+
+      <div class="timeline-dock">
+        <div class="scene-pills" id="scenePills"></div>
+        <div class="scene-trimmer-bar" id="sceneTrimmerBar" style="display:flex;align-items:center;justify-content:space-between;gap:8px;font-size:11.5px;color:var(--muted);background:var(--surface-2);border:1px solid var(--border);border-radius:9px;padding:4px 10px;">
+          <div style="display:flex;align-items:center;gap:6px;">
+            <span style="font-weight:700;color:var(--blue-deep);" id="trimmerSceneName">01 Sahne</span>
+            <span>Zaman Aralığı:</span>
+          </div>
+          <div style="display:flex;align-items:center;gap:6px;">
+            <label style="display:flex;align-items:center;gap:3px;">Başla: <input type="number" id="trimStartInput" step="0.1" min="0" style="width:52px;padding:2px 4px;font-size:11px;font-weight:700;background:var(--surface);border:1px solid var(--border);border-radius:6px;text-align:center;color:var(--text);"></label>
+            <label style="display:flex;align-items:center;gap:3px;">Bitir: <input type="number" id="trimEndInput" step="0.1" min="0.1" style="width:52px;padding:2px 4px;font-size:11px;font-weight:700;background:var(--surface);border:1px solid var(--border);border-radius:6px;text-align:center;color:var(--text);"></label>
+            <button type="button" id="applyTrimBtn" class="btn-acc" style="padding:3px 9px;font-size:10.5px;">✓ Ayarla</button>
+          </div>
+        </div>
+        <div class="transport">
+          <button id="playBtn">⏸ Duraklat</button>
+          <button id="loopSceneBtn">🔁 Sahneyi Döndür: Kapalı</button>
+          <button id="sfxToggleBtn" class="btn-ok" title="Sahne geçiş ses efektlerini aç/kapat">🔊 SFX: Açık</button>
+          <input id="scrubber" type="range" min="0" max="16" step="0.01" value="0">
+          <span class="tc-readout" id="tcReadout">00.00s / 16.00s</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- VERTICAL RESIZER 2 (Center <-> Right) -->
+    <div class="resizer-v" id="resizerRight" title="Sürükle: Sağ paneli boyutlandır | Çift Tıkla: Sıfırla"></div>
+
+    <!-- PANEL 4 (RIGHT): COMPACT VISUAL INSPECTOR -->
+    <div class="inspector-col">
+      <div class="tabs">
+        <div class="tab active" data-pane="paramsPane">🎨 Tasarım</div>
+        <div class="tab" data-pane="mediaSfxPane">🖼️ Medya & Ses</div>
+        <div class="tab" data-pane="codePane">⚡ Sahne Kodu</div>
+      </div>
+
+      <!-- PANE 1: COMPACT DESIGN & MATH -->
+      <div class="pane active" id="paramsPane">
+        <!-- Color Palette + 6 Curated Themes (Orange, Blue, Green, White focused) -->
+        <div class="group">
+          <div class="group-head">
+            <span class="group-title">Renk Atmosferi</span>
+            <span style="font-size:11px;color:var(--ok);font-weight:700;">Turuncu • Mavi • Yeşil • Beyaz</span>
+          </div>
+          <div class="palette-presets">
+            <button class="swatch-preset" data-theme="#FFFFFF,#0F172A,#FF5A1F" title="Beyaz & Canlı Turuncu">
+              <i style="background:#FFFFFF"></i><i style="background:#0F172A"></i><i style="background:#FF5A1F"></i>
+            </button>
+            <button class="swatch-preset" data-theme="#F8FAFC,#0F172A,#0EA5E9" title="Beyaz & Okyanus Mavisi">
+              <i style="background:#F8FAFC"></i><i style="background:#0F172A"></i><i style="background:#0EA5E9"></i>
+            </button>
+            <button class="swatch-preset" data-theme="#F4FBF7,#064E3B,#10B981" title="Beyaz & Zümrüt Yeşili">
+              <i style="background:#F4FBF7"></i><i style="background:#064E3B"></i><i style="background:#10B981"></i>
+            </button>
+            <button class="swatch-preset" data-theme="#0F172A,#FFFFFF,#FF5A1F" title="Derin Mavi, Beyaz & Turuncu">
+              <i style="background:#0F172A"></i><i style="background:#FFFFFF"></i><i style="background:#FF5A1F"></i>
+            </button>
+            <button class="swatch-preset" data-theme="#0B2545,#FFFFFF,#10B981" title="Mavi Zemin, Beyaz & Yeşil">
+              <i style="background:#0B2545"></i><i style="background:#FFFFFF"></i><i style="background:#10B981"></i>
+            </button>
+            <button class="swatch-preset" data-theme="#063B2C,#FFFFFF,#FF5A1F" title="Zümrüt Zemin, Beyaz & Turuncu">
+              <i style="background:#063B2C"></i><i style="background:#FFFFFF"></i><i style="background:#FF5A1F"></i>
+            </button>
+          </div>
+          <div class="color-row">
+            <label class="color-box">
+              <input type="color" data-param="bgColor" value="#FFFFFF">
+              <span>Zemin</span>
+            </label>
+            <label class="color-box">
+              <input type="color" data-param="textColor" value="#0F172A">
+              <span>Metin</span>
+            </label>
+            <label class="color-box">
+              <input type="color" data-param="accentColor" value="#FF5A1F">
+              <span>Vurgu</span>
+            </label>
+          </div>
+        </div>
+
+        <!-- Typography & Scale (Compact 2-col grid) -->
+        <div class="group">
+          <div class="group-head">
+            <span class="group-title">Tipografi & Ölçek</span>
+          </div>
+          <div class="field-box">
+            <label>Başlık Karakteri</label>
+            <select data-param="displayFont">
+              <option value="Archivo">Archivo Black — İsviçre Gücü</option>
+              <option value="Syne">Syne ExtraBold — Modern Sanat</option>
+              <option value="Bebas Neue">Bebas Neue — Sinematik Uzun</option>
+              <option value="Space Grotesk">Space Grotesk — Teknoloji</option>
+              <option value="Outfit">Outfit Black — Yumuşak Geometrik</option>
+              <option value="Playfair Display">Playfair Display — Dergi & Lüks</option>
+              <option value="JetBrains Mono">JetBrains Mono — Teknik Kod</option>
+            </select>
+          </div>
+          <div class="grid-2">
+            <div class="mini-ctrl">
+              <div class="mini-head"><span>Başlık Boyu</span><span class="val" data-val="titleSize">320</span></div>
+              <input type="range" min="110" max="400" step="2" data-param="titleSize">
+            </div>
+            <div class="mini-ctrl">
+              <div class="mini-head"><span>Alt Yazı</span><span class="val" data-val="subSize">22</span></div>
+              <input type="range" min="14" max="52" step="1" data-param="subSize">
+            </div>
+            <div class="mini-ctrl">
+              <div class="mini-head"><span>Harf Aralığı</span><span class="val" data-val="tracking">-0.03</span></div>
+              <input type="range" min="-0.07" max="0.18" step="0.005" data-param="tracking">
+            </div>
+            <div class="mini-ctrl">
+              <div class="mini-head"><span>Çizgi Kalınlığı</span><span class="val" data-val="strokeWidth">2.5</span></div>
+              <input type="range" min="1" max="8" step="0.5" data-param="strokeWidth">
+            </div>
+          </div>
+        </div>
+
+        <!-- Motion Physics + Live Spring Curve Graph -->
+        <div class="group">
+          <div class="group-head">
+            <span class="group-title">Hareket & Yay Fiziği</span>
+            <span style="font-size:11px;color:var(--ok);font-weight:700;" id="physicsTag">Dengeli Yay</span>
+          </div>
+          <canvas class="curve-preview" id="springCurveCanvas" width="320" height="54"></canvas>
+          <div class="grid-2">
+            <div class="mini-ctrl">
+              <div class="mini-head"><span>Genel Hız</span><span class="val" data-val="globalSpeed">1.0x</span></div>
+              <input type="range" min="0.25" max="2.5" step="0.05" data-param="globalSpeed">
+            </div>
+            <div class="mini-ctrl">
+              <div class="mini-head"><span>Yazı Hızı</span><span class="val" data-val="textSpeed">1.0x</span></div>
+              <input type="range" min="0.25" max="2.5" step="0.05" data-param="textSpeed">
+            </div>
+            <div class="mini-ctrl">
+              <div class="mini-head"><span>Yay Sertliği (ω)</span><span class="val" data-val="springStiff">11</span></div>
+              <input type="range" min="4" max="25" step="0.5" data-param="springStiff">
+            </div>
+            <div class="mini-ctrl">
+              <div class="mini-head"><span>Sönümleme (ζ)</span><span class="val" data-val="springDamp">0.42</span></div>
+              <input type="range" min="0.12" max="0.92" step="0.02" data-param="springDamp">
+            </div>
+          </div>
+        </div>
+
+        <!-- Compact 2-Column Scene Texts + Film Grain -->
+        <div class="group">
+          <div class="group-head">
+            <span class="group-title">Sahne Metinleri & Doku</span>
+          </div>
+          <div class="grid-2">
+            <div class="field-box">
+              <label>1. Başlık</label>
+              <input type="text" data-param="headline1">
+            </div>
+            <div class="field-box">
+              <label>2. Başlık</label>
+              <input type="text" data-param="headline2">
+            </div>
+            <div class="field-box">
+              <label>3. Sahne Vurgusu</label>
+              <input type="text" data-param="headline3">
+            </div>
+            <div class="field-box">
+              <label>Marka / Logo</label>
+              <input type="text" data-param="brandName">
+            </div>
+          </div>
+          <div class="field-box">
+            <label>Alt Slogan</label>
+            <input type="text" data-param="subtitle">
+          </div>
+          <div class="grid-2">
+            <div class="field-box">
+              <label>Konum / Yıl</label>
+              <input type="text" data-param="tagLine">
+            </div>
+            <div class="mini-ctrl">
+              <div class="mini-head"><span>Film Greni</span><span class="val" data-val="grainAmount">0.08</span></div>
+              <input type="range" min="0" max="0.22" step="0.01" data-param="grainAmount">
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- PANE 2: MEDIA ASSETS, REAL-VIDEO OVERLAY & AI SFX ENGINE -->
+      <div class="pane" id="mediaSfxPane">
+        <!-- 1. Real Human / Product Video Overlay Layer -->
+        <div class="group">
+          <div class="group-head">
+            <span class="group-title">1. Gerçek Video Üstü Motion (Overlay)</span>
+            <span style="font-size:10.5px;color:var(--ok);font-weight:700;" id="bgVideoStatus">Kapalı</span>
+          </div>
+          <div style="font-size:11.5px;color:var(--muted);line-height:1.4;">
+            Kendi çektiğin bir insan/ürün videosunu yükle; motion grafikler şeffaf katman olarak videonun üstüne binsin:
+          </div>
+          <div class="grid-2">
+            <label class="btn btn-claude" style="justify-content:center;padding:8px;">
+              📹 Video Seç (MP4)
+              <input type="file" id="bgVideoInput" accept="video/*" style="display:none;">
+            </label>
+            <button type="button" id="clearBgVideoBtn" style="justify-content:center;padding:8px;">✕ Videoyu Kaldır</button>
+          </div>
+          <div class="mini-ctrl">
+            <div class="mini-head"><span>Motion Arka Plan Opaklığı</span><span class="val" id="bgOpacityVal">100%</span></div>
+            <input type="range" id="bgOpacitySlider" min="0" max="1" step="0.05" value="1">
+          </div>
+          <div class="mini-ctrl" id="videoOffsetCtrl" style="display:none;">
+            <div class="mini-head"><span>Gerçek Video Başlangıcı (Ofset)</span><span class="val" id="videoOffsetVal">0.0s</span></div>
+            <input type="range" id="videoOffsetSlider" min="0" max="60" step="0.1" value="0">
+          </div>
+          <div class="grid-2" id="videoSyncRow" style="display:none;">
+            <button type="button" id="syncDurationToVideoBtn" class="btn" style="justify-content:center;padding:7px;font-size:11.5px;">⏱️ Süreyi Videoma Eşitle</button>
+            <div class="color-box" style="margin:0;padding:6px 9px;">
+              <span style="font-size:11px;color:var(--muted);">Ses:</span>
+              <input type="range" id="videoVolSlider" min="0" max="1" step="0.05" value="0.8" style="flex:1;accent-color:var(--blue);">
+              <span id="videoVolVal" style="font-size:11px;font-weight:700;">80%</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- 2. Brand Logo & UI Screenshot Assets -->
+        <div class="group">
+          <div class="group-head">
+            <span class="group-title">2. Logo & Ekran Görüntüsü Elemanları</span>
+          </div>
+          <div class="grid-2">
+            <label class="btn" style="justify-content:center;padding:8px;">
+              🏷️ Logo Yükle (PNG)
+              <input type="file" id="logoAssetInput" accept="image/*" style="display:none;">
+            </label>
+            <label class="btn" style="justify-content:center;padding:8px;">
+              🖼️ Ekran Görüntüsü
+              <input type="file" id="screenAssetInput" accept="image/*" style="display:none;">
+            </label>
+          </div>
+          <button type="button" id="injectScreenSceneBtn" class="btn-ok" style="justify-content:center;padding:8px;">
+            ✨ Seçili Sahneye Ekran Görüntüsü & Logo Kartı Ekle
+          </button>
+        </div>
+
+        <!-- 3. AI Suggested SFX Library & Scene Sound Triggers -->
+        <div class="group">
+          <div class="group-head">
+            <span class="group-title">3. AI Ses Efektleri (SFX Kütüphanesi)</span>
+            <button type="button" id="aiAutoSfxBtn" class="btn-acc" style="padding:4px 9px;font-size:11px;">🤖 AI Otomatik Ata</button>
+          </div>
+          <div style="font-size:11.5px;color:var(--muted);line-height:1.4;">
+            Sesi dinlemek için tıkla. Sahne geçişlerinde otomatik çalar ve MP4 indirirken videoya gömülür:
+          </div>
+          <div class="grid-2" id="sfxPreviewGrid">
+            <button type="button" data-sfx-test="impact" style="justify-content:center;">💥 Impact (Derin Vuruş)</button>
+            <button type="button" data-sfx-test="whoosh" style="justify-content:center;">💨 Whoosh (Hızlı Geçiş)</button>
+            <button type="button" data-sfx-test="riser" style="justify-content:center;">🚀 Riser (Gerilim)</button>
+            <button type="button" data-sfx-test="pop" style="justify-content:center;">🏀 Pop (Esnek Yay)</button>
+            <button type="button" data-sfx-test="glitch" style="justify-content:center;">⚡ Glitch (Siber Veri)</button>
+            <button type="button" data-sfx-test="shimmer" style="justify-content:center;">✨ Shimmer (Final Logo)</button>
+          </div>
+          <div id="sceneSfxAssignList" style="display:flex;flex-direction:column;gap:6px;margin-top:4px;"></div>
+        </div>
+      </div>
+
+      <!-- PANE 3: ACTIVE SCENE CODE EDITOR -->
+      <div class="pane" id="codePane">
+        <div class="field-box">
+          <label>Düzenlenen Sahne Katmanı</label>
+          <select id="sceneSelectBox"></select>
+        </div>
+        <div style="font-size:12px;color:var(--muted);line-height:1.45;">
+          Seçili sahnenin çizim matematiği. Değişiklik yaptığında tüm videoyu baştan başlatmadan sadece bu sahneyi günceller:
+        </div>
+        <textarea class="code-editor" id="sceneCodeEditor" spellcheck="false"></textarea>
+        <button id="applySceneCodeBtn" class="btn-acc" style="justify-content:center;padding:10px;">⚡ Bu Sahneyi Anında Yamala</button>
+        <div id="codeErr" style="color:#EF4444;font-family:'JetBrains Mono',monospace;font-size:11px;"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- CLAUDE PRO & MCP MODAL -->
+<div class="modal-backdrop" id="claudeModal">
+  <div class="modal">
+    <div style="display:flex;justify-content:space-between;align-items:center;">
+      <div style="font-weight:800;font-size:18px;color:var(--text);">💠 Claude Pro, MCP & AI Bağlantısı</div>
+      <button id="closeClaudeModal">✕ Kapat</button>
+    </div>
+
+    <div class="group">
+      <div class="group-title" style="color:var(--blue-deep);">1. Daha Önce Claude İle Ürettiğin Videoyu Buraya Taşı</div>
+      <div style="font-size:12px;color:var(--text);line-height:1.45;">
+        Daha önce Claude'da ürettiğin bir motion video varsa aşağıdaki butona bas, o sohbete gidip <b>Ctrl+V</b> yap. Claude videonu bu stüdyonun düzenlenebilir formatına çevirecek:
+      </div>
+      <button type="button" id="copyConvertPromptBtn" class="btn-claude" style="justify-content:center;padding:9px;">🔄 Eski Claude Videomu Dönüştürme Promptunu Kopyala</button>
+    </div>
+
+    <div class="group">
+      <div class="group-title">2. Manuel JSON Yapıştırma Alanı (Veya Üstten 📋 Panodan Yükle)</div>
+      <textarea id="bridgePasteBox" class="code-editor" style="min-height:100px;" placeholder="Claude Pro'dan kopyaladığın JSON çıktısını buraya da yapıştırabilirsin..."></textarea>
+      <button type="button" id="importBridgeBtn" class="btn-acc" style="justify-content:center;padding:10px;">🚀 Videoyu Sahneye Yükle</button>
+    </div>
+
+    <div class="group">
+      <div class="group-title">3. Doğrudan API Anahtarı (İsteğe Bağlı)</div>
+      <div class="grid-2">
+        <div class="field-box">
+          <label>AI Sağlayıcı</label>
+          <select id="apiProvider">
+            <option value="local">Claude Pro Köprüsü + Yerleşik Motor</option>
+            <option value="anthropic">Claude API (Anthropic)</option>
+            <option value="gemini">Google Gemini API</option>
+          </select>
+        </div>
+        <div class="field-box">
+          <label>API Anahtarı</label>
+          <input type="password" id="apiKeyInput" placeholder="sk-ant-... veya AIza...">
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- MP4 EXPORT MODAL -->
+<div class="modal-backdrop" id="exportModal">
+  <div class="modal" style="width:440px;">
+    <div style="font-weight:800;font-size:18px;color:var(--text);">🎬 1080p MP4 Render Ediliyor</div>
+    <div id="exportStatus" style="font-size:13px;color:var(--muted);">Kareler hazırlanıyor...</div>
+    <div class="pbar"><i id="exportBar"></i></div>
+  </div>
+</div>
+
+<script>
+/* ============================================================================
+   1. UNIVERSAL PARAMETRIC SCENE ENGINE
+   ============================================================================ */
+let W = 1920, H = 1080, currentRatio = '16:9';
+const FPS = 30;
+const canvas = document.getElementById('stageCanvas');
+const g = canvas.getContext('2d');
+
+const clamp = (v, a = 0, b = 1) => Math.min(b, Math.max(a, v));
+const p = (t, a, b, spd = 1) => clamp(((t - a) * spd) / Math.max(0.0001, b - a));
+const lerp = (a, b, k) => a + (b - a) * k;
+const E = {
+  outExpo: k => k >= 1 ? 1 : 1 - Math.pow(2, -10 * k),
+  inExpo: k => k <= 0 ? 0 : Math.pow(2, 10 * k - 10),
+  inOutExpo: k => k <= 0 ? 0 : k >= 1 ? 1 : k < .5 ? Math.pow(2, 20 * k - 10) / 2 : (2 - Math.pow(2, -20 * k + 10)) / 2,
+  outCubic: k => 1 - Math.pow(1 - k, 3),
+  inCubic: k => k * k * k,
+  inOutCubic: k => k < .5 ? 4 * k * k * k : 1 - Math.pow(-2 * k + 2, 3) / 2,
+};
+
+let PROJECT = null;
+let P = {};
+let compiledScenes = [];
+const historyStack = [];
+let lastImportedClipboardHash = '';
+
+function spring(s, z = P.springDamp, w = P.springStiff) {
+  if (s <= 0) return 0;
+  const zz = clamp(z || 0.4, 0.05, 0.99);
+  const ww = w || 12;
+  return 1 - Math.exp(-zz * ww * s) * Math.cos(ww * Math.sqrt(1 - zz * zz) * s);
+}
+const typed = (str, k) => [...String(str || '')].slice(0, Math.floor([...String(str || '')].length * clamp(k))).join('');
+
+function font(size, w = 900, fam = P.displayFont) {
+  g.font = `${w} ${size}px "${fam || 'Archivo'}", sans-serif`;
+}
+function mono(size, w = 500) {
+  g.font = `${w} ${size}px "${P.monoFont || 'JetBrains Mono'}", monospace`;
+}
+function capH(size, w = 900) {
+  font(size, w);
+  return g.measureText('H').actualBoundingBoxAscent || size * 0.72;
+}
+function lay(text, size, track = P.tracking, w = 900) {
+  font(size, w);
+  const str = String(text || '');
+  const tr = (track ?? -0.03) * size;
+  const xs = [], ws = [];
+  let x = 0;
+  const chars = [...str];
+  for (const ch of chars) {
+    const cw = g.measureText(ch).width;
+    xs.push(x); ws.push(cw);
+    x += cw + tr;
+  }
+  return { xs, ws, chars, width: Math.max(1, x - tr), size };
+}
+function fit(text, maxW, base, track = P.tracking) {
+  const safeMax = Math.min(maxW || (W * 0.84), W * 0.82);
+  const curW = lay(text, base, track).width;
+  return base * Math.min(1, safeMax / Math.max(1, curW));
+}
+function centerText(text, cx, cy, size, color = P.textColor, track = P.tracking) {
+  const s = fit(text, W * 0.82, size, track);
+  const L = lay(text, s, track);
+  const ch = capH(s);
+  font(s);
+  g.fillStyle = color;
+  const x0 = cx - L.width / 2;
+  const y0 = cy + ch / 2;
+  L.chars.forEach((c, i) => g.fillText(c, x0 + L.xs[i], y0));
+  return { L, ch, s, x0, y0 };
+}
+function strokeCenterText(text, cx, cy, size, color = P.textColor, lineW = P.strokeWidth, track = P.tracking) {
+  const s = fit(text, W * 0.82, size, track);
+  const L = lay(text, s, track);
+  const ch = capH(s);
+  font(s);
+  g.strokeStyle = color;
+  g.lineWidth = lineW;
+  g.lineJoin = 'round';
+  const x0 = cx - L.width / 2;
+  const y0 = cy + ch / 2;
+  L.chars.forEach((c, i) => g.strokeText(c, x0 + L.xs[i], y0));
+  return { L, ch, s, x0, y0 };
+}
+
+const ASSETS = {
+  bgVideoEl: null,
+  bgOpacity: 1.0,
+  logoImg: null,
+  screenImg: null,
+  videoOffset: 0.0,
+  videoVolume: 0.8
+};
+
+function drawLogo(cx = W / 2, cy = H / 2, size = 180) {
+  if (!ASSETS.logoImg) return false;
+  const aspect = (ASSETS.logoImg.naturalWidth || 1) / Math.max(1, ASSETS.logoImg.naturalHeight || 1);
+  const w = aspect >= 1 ? size : size * aspect;
+  const h = aspect >= 1 ? size / aspect : size;
+  g.drawImage(ASSETS.logoImg, cx - w / 2, cy - h / 2, w, h);
+  return true;
+}
+
+function drawScreen(cx = W / 2, cy = H / 2, w = 960, h = 560, radius = 24) {
+  const finalW = Math.min(w, W * 0.86);
+  const finalH = Math.round(finalW * (h / w));
+  g.save();
+  g.shadowColor = 'rgba(15, 23, 42, 0.42)';
+  g.shadowBlur = 48;
+  g.shadowOffsetY = 18;
+  g.fillStyle = P.surface || '#0F172A';
+  g.beginPath();
+  g.roundRect(cx - finalW / 2, cy - finalH / 2, finalW, finalH, radius);
+  g.fill();
+  g.shadowColor = 'transparent';
+  g.clip();
+  if (ASSETS.screenImg) {
+    g.drawImage(ASSETS.screenImg, cx - finalW / 2, cy - finalH / 2, finalW, finalH);
+  } else {
+    g.fillStyle = '#0F172A';
+    g.fillRect(cx - finalW / 2, cy - finalH / 2, finalW, finalH);
+    g.fillStyle = P.accentColor || '#FF5A1F';
+    g.fillRect(cx - finalW / 2, cy - finalH / 2, finalW, 46);
+    mono(Math.min(20, Math.round(finalW * 0.024)), 600);
+    g.fillStyle = '#FFFFFF';
+    g.textAlign = 'center';
+    g.fillText(P.brandName + ' // UI SCREENSHOT PREVIEW', cx, cy + 8);
+  }
+  g.restore();
+  g.save();
+  g.strokeStyle = P.accentColor || '#FF5A1F';
+  g.lineWidth = 3;
+  g.beginPath();
+  g.roundRect(cx - finalW / 2, cy - finalH / 2, finalW, finalH, radius);
+  g.stroke();
+  g.restore();
+}
+
+const HLP = { E, clamp, lerp, p, spring, typed, font, mono, capH, lay, fit, centerText, strokeCenterText, drawLogo, drawScreen, ASSETS };
+
+/* ============================================================================
+   2. LIVE SPRING CURVE VISUALIZER (Draws interactive bounce math in the right panel)
+   ============================================================================ */
+const curveCanvas = document.getElementById('springCurveCanvas');
+const cctx = curveCanvas.getContext('2d');
+
+function drawSpringCurvePreview() {
+  const cw = curveCanvas.width, ch = curveCanvas.height;
+  cctx.clearRect(0, 0, cw, ch);
+
+  // Target equilibrium dashed line (Ocean Blue)
+  cctx.strokeStyle = 'rgba(14, 165, 233, 0.35)';
+  cctx.setLineDash([4, 4]);
+  cctx.beginPath();
+  cctx.moveTo(0, ch * 0.36);
+  cctx.lineTo(cw, ch * 0.36);
+  cctx.stroke();
+  cctx.setLineDash([]);
+
+  // Spring waveform (Orange -> Blue -> Emerald Green gradient)
+  const grad = cctx.createLinearGradient(0, 0, cw, 0);
+  grad.addColorStop(0, '#FF5A1F');
+  grad.addColorStop(0.5, '#0EA5E9');
+  grad.addColorStop(1, '#10B981');
+  cctx.strokeStyle = grad;
+  cctx.lineWidth = 2.5;
+  cctx.beginPath();
+  for (let x = 0; x < cw; x++) {
+    const s = (x / cw) * 1.4 / Math.max(0.35, P.globalSpeed || 1);
+    const val = spring(s, P.springDamp, P.springStiff);
+    const y = lerp(ch - 8, ch * 0.36, val);
+    x === 0 ? cctx.moveTo(x, y) : cctx.lineTo(x, y);
+  }
+  cctx.stroke();
+
+  const tag = document.getElementById('physicsTag');
+  if (P.springDamp < 0.28) tag.textContent = 'Çok Esnek / Zıplayan';
+  else if (P.springDamp > 0.65) tag.textContent = 'Yumuşak / Sakin';
+  else tag.textContent = 'Dengeli Sinematik';
+}
+
+/* ============================================================================
+   3. BUILT-IN CONCEPT GENERATOR + DEFAULT PROJECT
+   ============================================================================ */
+function buildProjectFromConcept(promptText) {
+  const raw = promptText.trim();
+  const low = raw.toLowerCase();
+  const quoted = raw.match(/["“”']([^"“”']+)["“”']/);
+  const upperWords = raw.match(/\b[A-ZÇĞİÖŞÜ]{3,12}\b/g);
+  const cleanWords = raw.replace(/[^a-zA-ZçğıöşüÇĞİÖŞÜ0-9\s]/g, '').split(/\s+/).filter(w => w.length > 2);
+
+  let preset = 'kinetic';
+  if (low.includes('kripto') || low.includes('siber') || low.includes('cyber') || low.includes('ai') || low.includes('teknoloji') || low.includes('neon')) {
+    preset = 'cyber';
+  } else if (low.includes('kahve') || low.includes('lüks') || low.includes('moda') || low.includes('parfüm') || low.includes('saat') || low.includes('dergi')) {
+    preset = 'editorial';
+  }
+
+  const brand = quoted ? quoted[1].toUpperCase() : (upperWords ? upperWords[0] : (cleanWords[0] || 'NOVA').toUpperCase());
+  const w1 = (cleanWords[1] || 'FUTURE').toUpperCase();
+  const w2 = (cleanWords[2] || 'MOTION').toUpperCase();
+
+  if (preset === 'cyber') {
+    return {
+      title: `${brand} // Cyber Reel`,
+      duration: 16,
+      params: {
+        bgColor: '#050811', textColor: '#E2F1FF', accentColor: '#00F5A0',
+        displayFont: 'Space Grotesk', monoFont: 'JetBrains Mono',
+        globalSpeed: 1.0, textSpeed: 1.0, titleSize: 250, subSize: 24,
+        tracking: -0.02, springStiff: 14, springDamp: 0.35, grainAmount: 0.08, strokeWidth: 2.5,
+        headline1: brand, headline2: w1, headline3: w2,
+        subtitle: raw.slice(0, 56), brandName: brand, tagLine: 'NEXT-GEN PROTOCOL // 2026'
+      },
+      scenes: [
+        {
+          name: '01 Radar', start: 0, end: 4,
+          code: `const cx = W/2, cy = H/2;
+for (let i = 1; i <= 4; i++) {
+  const k = spring(t - i*0.12);
+  const r = i * 115 * k;
+  g.save();
+  g.strokeStyle = i % 2 ? P.accentColor : P.textColor;
+  g.globalAlpha = 0.25 + (i===2 ? 0.5 : 0);
+  g.lineWidth = i===2 ? P.strokeWidth : 1;
+  g.setLineDash(i%2 ? [18, 12] : []);
+  g.beginPath(); g.arc(cx, cy, Math.max(1, r), t*1.4*(i%2?1:-1), t*1.4*(i%2?1:-1) + Math.PI*1.65); g.stroke();
+  g.restore();
+}
+const s = fit(P.headline1, 1400, P.titleSize * 0.72);
+const enter = E.outExpo(p(t, 0.4, 1.6, P.textSpeed));
+g.save(); g.translate(0, (1 - enter) * 60); g.globalAlpha = enter;
+centerText(P.headline1, cx, cy, s, P.textColor); g.restore();`
+        },
+        {
+          name: '02 Kesit', start: 4, end: 8,
+          code: `const lt0 = t - 4;
+const barW = W * E.inOutExpo(p(lt0, 0, 0.9));
+g.fillStyle = P.accentColor; g.fillRect((W - barW)/2, H/2 - 3, barW, 6);
+const s = fit(P.headline2, 1550, P.titleSize);
+const k1 = E.outExpo(p(lt0, 0.15, 1.2, P.textSpeed));
+const k2 = E.outExpo(p(lt0, 0.35, 1.4, P.textSpeed));
+g.save(); g.beginPath(); g.rect(0, 0, W, H/2 - 4); g.clip();
+centerText(P.headline1, W/2, H/2 - 140 + (1-k1)*180, s*0.85, P.textColor); g.restore();
+g.save(); g.beginPath(); g.rect(0, H/2 + 4, W, H/2); g.clip();
+strokeCenterText(P.headline2, W/2, H/2 + 150 - (1-k2)*180, s, P.accentColor, P.strokeWidth); g.restore();`
+        },
+        {
+          name: '03 Matris', start: 8, end: 12,
+          code: `const lt0 = t - 8;
+const fillK = E.inOutExpo(p(lt0, 0, 0.6));
+g.fillStyle = P.accentColor; g.fillRect(0, 0, W, H * fillK);
+const s = fit(P.headline3, 1600, P.titleSize * 1.05);
+const bounce = spring(lt0 - 0.25);
+g.save(); g.translate(W/2, H/2 - 20); g.scale(0.7 + 0.3*bounce, 0.7 + 0.3*bounce);
+centerText(P.headline3, 0, 0, s, P.bgColor); g.restore();
+mono(P.subSize, 600); g.fillStyle = P.bgColor; g.textAlign = 'center';
+g.fillText(typed(P.subtitle, p(lt0, 0.6, 2.0, P.textSpeed)), W/2, H/2 + 150);`
+        },
+        {
+          name: '04 Final Logo', start: 12, end: 16,
+          code: `const lt0 = t - 12;
+const k = spring(lt0 - 0.15);
+const s = fit(P.brandName, 1300, P.titleSize * 0.78);
+const L = lay(P.brandName, s), ch = capH(s);
+const dia = ch * 0.95 * k, totalW = dia + 44 + L.width, x0 = (W - totalW)/2;
+g.save(); g.translate(x0 + dia/2, H/2 - 20); g.rotate(Math.PI/4 * E.inOutCubic(p(lt0, 0, 1.2)));
+g.strokeStyle = P.accentColor; g.lineWidth = P.strokeWidth * 2;
+g.strokeRect(-dia/2, -dia/2, dia, dia);
+g.fillStyle = P.accentColor; g.fillRect(-dia*0.22, -dia*0.22, dia*0.44, dia*0.44); g.restore();
+font(s); g.fillStyle = P.textColor;
+L.chars.forEach((c, i) => {
+  const ck = E.outExpo(p(lt0, 0.25 + i*0.06, 1.1 + i*0.06, P.textSpeed));
+  g.globalAlpha = ck; g.fillText(c, x0 + dia + 44 + L.xs[i], H/2 - 20 + ch/2 + (1-ck)*50);
+});
+g.globalAlpha = 1; mono(P.subSize, 500); g.fillStyle = P.accentColor;
+g.fillText(typed(P.tagLine, p(lt0, 0.9, 1.9, P.textSpeed)), x0, H/2 + ch/2 + 64);`
+        }
+      ]
+    };
+  }
+
+  if (preset === 'editorial') {
+    return {
+      title: `${brand} — Editorial Film`,
+      duration: 16,
+      params: {
+        bgColor: '#12100E', textColor: '#F3EDE2', accentColor: '#D96B43',
+        displayFont: 'Playfair Display', monoFont: 'JetBrains Mono',
+        globalSpeed: 1.0, textSpeed: 1.0, titleSize: 230, subSize: 24,
+        tracking: -0.015, springStiff: 9, springDamp: 0.55, grainAmount: 0.11, strokeWidth: 2.0,
+        headline1: brand, headline2: w1, headline3: w2,
+        subtitle: raw.slice(0, 56), brandName: brand, tagLine: 'ATELIER COLLECTION — 2026'
+      },
+      scenes: [
+        {
+          name: '01 Güneş & Kontrast', start: 0, end: 4,
+          code: `const k = E.outExpo(p(t, 0.1, 1.8));
+const r = 240 * spring(t - 0.15);
+g.fillStyle = P.accentColor; g.beginPath(); g.arc(W/2, H/2, Math.max(1, r), 0, Math.PI*2); g.fill();
+const s = fit(P.headline1, 1500, P.titleSize);
+g.save(); g.globalCompositeOperation = 'difference';
+centerText(P.headline1, W/2, H/2 + (1-k)*90, s, P.textColor); g.restore();`
+        },
+        {
+          name: '02 Dergi Kesiti', start: 4, end: 8,
+          code: `const lt0 = t - 4;
+const rk = E.inOutExpo(p(lt0, 0, 1.1));
+g.fillStyle = P.textColor; g.globalAlpha = 0.28; g.fillRect(120, H/2, (W - 240)*rk, 1.5); g.globalAlpha = 1;
+const s = fit(P.headline2, 1400, P.titleSize * 0.85);
+const k1 = E.outCubic(p(lt0, 0.1, 1.2, P.textSpeed));
+const k2 = E.outCubic(p(lt0, 0.3, 1.4, P.textSpeed));
+centerText(P.headline1, W*0.36, H/2 - 110 + (1-k1)*50, s, P.textColor);
+centerText(P.headline2, W*0.64, H/2 + 125 - (1-k2)*50, s, P.accentColor);`
+        },
+        {
+          name: '03 Sahne Perdesi', start: 8, end: 12,
+          code: `const lt0 = t - 8;
+const hk = E.inOutExpo(p(lt0, 0, 0.75));
+g.fillStyle = P.accentColor; g.fillRect(120, (H - H*hk)/2, W - 240, H*hk);
+const s = fit(P.headline3, 1400, P.titleSize * 0.95);
+centerText(P.headline3, W/2, H/2 - 20, s, P.bgColor);
+mono(P.subSize, 500); g.fillStyle = P.bgColor; g.textAlign = 'center';
+g.fillText(typed(P.subtitle, p(lt0, 0.5, 1.9, P.textSpeed)), W/2, H/2 + 135);`
+        },
+        {
+          name: '04 Monogram', start: 12, end: 16,
+          code: `const lt0 = t - 12;
+const s = fit(P.brandName, 1400, P.titleSize * 0.85);
+const k = E.outExpo(p(lt0, 0.15, 1.3, P.textSpeed));
+g.save(); g.globalAlpha = k; centerText(P.brandName, W/2, H/2 - 25, s, P.textColor); g.restore();
+g.strokeStyle = P.accentColor; g.lineWidth = P.strokeWidth;
+const rw = 520 * E.inOutExpo(p(lt0, 0.4, 1.4));
+g.strokeRect((W - rw)/2, H/2 - 155, rw, 260);
+mono(P.subSize, 500); g.fillStyle = P.accentColor; g.textAlign = 'center';
+g.fillText(typed(P.tagLine, p(lt0, 0.8, 1.8, P.textSpeed)), W/2, H/2 + 175);`
+        }
+      ]
+    };
+  }
+
+  return {
+    title: `${brand} — Kinetic Launch`,
+    duration: 16,
+    params: {
+      bgColor: '#0A0A0C', textColor: '#F5F5F7', accentColor: '#CCFF00',
+      displayFont: 'Bebas Neue', monoFont: 'JetBrains Mono',
+      globalSpeed: 1.0, textSpeed: 1.0, titleSize: 300, subSize: 25,
+      tracking: 0.02, springStiff: 16, springDamp: 0.32, grainAmount: 0.08, strokeWidth: 3.0,
+      headline1: brand, headline2: w1, headline3: w2,
+      subtitle: raw.slice(0, 56), brandName: brand, tagLine: 'HIGH VOLTAGE MOTION // 2026'
+    },
+    scenes: [
+      {
+        name: '01 Diyagonal Darbe', start: 0, end: 4,
+        code: `const k = spring(t - 0.15);
+g.save(); g.translate(W/2, H/2); g.rotate(-0.14);
+g.fillStyle = P.accentColor; g.fillRect(-W, -110 * k, W*2, 220 * k);
+const s = fit(P.headline1, 1500, P.titleSize * 0.8);
+centerText(P.headline1, 0, 0, s, P.bgColor); g.restore();`
+      },
+      {
+        name: '02 Yankı', start: 4, end: 8,
+        code: `const lt0 = t - 4;
+const s = fit(P.headline2, 1600, P.titleSize);
+for (let i = -2; i <= 2; i++) {
+  if (i === 0) continue;
+  const spread = (1 - E.inOutExpo(p(lt0, 0.1, 1.4, P.textSpeed))) * 190 * i;
+  strokeCenterText(P.headline2, W/2, H/2 + spread, s, P.accentColor, P.strokeWidth);
+}
+centerText(P.headline2, W/2, H/2, s, P.textColor);`
+      },
+      {
+        name: '03 Hız Duvarı', start: 8, end: 12,
+        code: `const lt0 = t - 8;
+const words = [P.headline1, P.headline2, P.headline3, P.brandName];
+const rh = H / 4, s = Math.round(P.titleSize * 0.56);
+for (let i = 0; i < 4; i++) {
+  const cy = rh * i + rh/2;
+  if (i === 1) { g.fillStyle = P.accentColor; g.fillRect(0, cy - rh/2, W, rh); }
+  const str = words[i] + '  //  ';
+  font(s);
+  const uw = Math.max(60, g.measureText(str).width);
+  const off = (i%2 ? 1 : -1) * lt0 * 420 * P.textSpeed;
+  let x = ((off % uw) + uw) % uw - uw;
+  const by = cy + capH(s)/2;
+  g.fillStyle = i === 1 ? P.bgColor : P.textColor;
+  while (x < W) { g.fillText(str, x, by); x += uw; }
+}`
+      },
+      {
+        name: '04 Final İmza', start: 12, end: 16,
+        code: `const lt0 = t - 12;
+const sc = spring(lt0 - 0.1);
+const s = fit(P.brandName, 1500, P.titleSize * 0.92);
+g.save(); g.translate(W/2, H/2 - 30); g.scale(sc, sc);
+centerText(P.brandName, 0, 0, s, P.accentColor); g.restore();
+mono(P.subSize, 600); g.fillStyle = P.textColor; g.textAlign = 'center';
+g.fillText(typed(P.subtitle + ' — ' + P.tagLine, p(lt0, 0.4, 1.7, P.textSpeed)), W/2, H/2 + 150);`
+      }
+    ]
+  };
+}
+
+const DEFAULT_PROJECT = {
+  title: 'ATLAS Showreel 2026',
+  duration: 22,
+  params: {
+    bgColor: '#FFFFFF', textColor: '#0F172A', accentColor: '#FF5A1F',
+    displayFont: 'Archivo', monoFont: 'JetBrains Mono',
+    globalSpeed: 1.0, textSpeed: 1.0, titleSize: 320, subSize: 22,
+    tracking: -0.03, springStiff: 11, springDamp: 0.42, grainAmount: 0.05, strokeWidth: 2.5,
+    headline1: 'FORM', headline2: 'FOLLOWS', headline3: 'MOTION',
+    subtitle: 'Every frame is a design decision.', brandName: 'ATLAS', tagLine: 'İSTANBUL — 2026'
+  },
+  scenes: [
+    {
+      name: '01 Kare & Kesit', start: 0, end: 2.75,
+      code: `const s = Math.min(110, W * 0.1), cx = W / 2;
+const fall = spring(t - 0.45);
+const cy = lerp(-160, H / 2, fall);
+const m = E.inOutExpo(p(t, 1.95, 2.75));
+const rot = lerp(-Math.PI / 2, 0, fall) * (1 - m);
+const maxLineW = Math.min(1680, W * 0.84);
+const w = lerp(s, maxLineW, m), h = lerp(s, 4, m);
+g.save(); g.translate(cx, cy); g.rotate(rot);
+g.fillStyle = P.accentColor; g.fillRect(-w / 2, -h / 2, w, h); g.restore();`
+    },
+    {
+      name: '02 Form Follows', start: 2.75, end: 6.5,
+      code: `const longest = P.headline1.length > P.headline2.length ? P.headline1 : P.headline2;
+const size = fit(longest, W * 0.82, P.titleSize);
+const A = lay(P.headline1, size), B = lay(P.headline2, size);
+const ch = capH(size), gap = Math.min(26, H * 0.02), ly = H / 2;
+const ex = E.inExpo(p(t, 5.45, 6.3));
+const barW = Math.min(1680, W * 0.84);
+g.fillStyle = P.accentColor; g.fillRect((W - barW)/2, ly - 2, barW, 4);
+const ax = (W - A.width) / 2, ab = ly - gap;
+g.save(); g.beginPath(); g.rect(0, 0, W, ly - 2); g.clip();
+font(size); g.fillStyle = P.textColor;
+A.chars.forEach((c, i) => {
+  const k = E.outExpo(p(t, 2.78 + i * 0.07, 3.75 + i * 0.07, P.textSpeed));
+  g.fillText(c, ax + A.xs[i], ab + (1 - k) * (ch + gap + 12) - ex * 90);
+});
+g.restore();
+const bx = (W - B.width) / 2, bb = ly + gap + ch, dys = [];
+g.save(); g.beginPath(); g.rect(0, ly + 2, W, H); g.clip();
+font(size); g.lineWidth = P.strokeWidth; g.strokeStyle = '#0EA5E9';
+B.chars.forEach((c, i) => {
+  const k = E.outExpo(p(t, 2.95 + i * 0.055, 3.95 + i * 0.055, P.textSpeed));
+  const dy = -(1 - k) * (ch + gap + 12) + ex * 90; dys.push(dy);
+  g.strokeText(c, bx + B.xs[i], bb + dy);
+});
+const wk = E.inOutExpo(p(t, 4.2, 5.05, P.textSpeed));
+if (wk > 0) {
+  g.beginPath(); g.rect(bx - 12, 0, (B.width + 24) * wk, H); g.clip();
+  g.fillStyle = P.accentColor; g.strokeStyle = P.accentColor; g.lineWidth = P.strokeWidth + 1.5;
+  B.chars.forEach((c, i) => { g.strokeText(c, bx + B.xs[i], bb + dys[i]); g.fillText(c, bx + B.xs[i], bb + dys[i]); });
+}
+g.restore();`
+    },
+    {
+      name: '03 Motion Alanı', start: 6.5, end: 10.7,
+      code: `g.fillStyle = P.accentColor; g.fillRect(0, 0, W, H);
+const size = fit(P.headline3, W * 0.74, P.titleSize * 1.05);
+const L = lay(P.headline3, size), ch = capH(size);
+const extra = E.inOutCubic(p(t, 8.3, 9.4)) * (W < 1200 ? 8 : 22);
+const x0 = (W - L.width) / 2, base = H / 2 + ch / 2, n = L.chars.length;
+const xAt = i => x0 + L.xs[i] + (i - (n - 1) / 2) * extra;
+g.save(); g.beginPath(); g.rect(0, base - ch - 12, W, ch + 24); g.clip();
+font(size); g.fillStyle = P.bgColor;
+L.chars.forEach((c, i) => {
+  const k = E.outExpo(p(t, 6.55 + i * 0.06, 7.4 + i * 0.06, P.textSpeed));
+  const dir = i % 2 ? 1 : -1;
+  g.fillText(c, xAt(i), base + dir * (1 - k) * (ch + 24));
+});
+g.restore();
+const subText = typed(P.subtitle, p(t, 7.45, 8.4, P.textSpeed));
+mono(Math.min(P.subSize, Math.round(W * 0.024)), 500); g.fillStyle = P.bgColor;
+const subW = g.measureText(subText).width;
+g.fillText(subText, Math.round((W - subW) / 2), base + 104);
+if (t >= 9.45) {
+  const r = lerp(0, Math.hypot(W, H), E.inOutExpo(p(t, 9.45, 10.7)));
+  g.fillStyle = P.bgColor; g.beginPath(); g.arc(W/2, H/2, r, 0, Math.PI * 2); g.fill();
+}`
+    },
+    {
+      name: '04 Geometri', start: 10.7, end: 14.9,
+      code: `const ex = E.inOutExpo(p(t, 13.95, 14.85));
+const S = Math.min(230, W * 0.22);
+const cy = H * 0.52;
+const cxs = [W / 2 - S * 1.45, W / 2, W / 2 + S * 1.45];
+const titleSize = Math.min(84, Math.round(W * 0.075));
+font(titleSize); g.fillStyle = P.textColor; g.globalAlpha = 1 - ex;
+const titleStr = 'How we move.';
+const titleW = g.measureText(titleStr).width;
+g.fillText(titleStr, Math.round((W - titleW) / 2), Math.round(cy - S * 1.35)); g.globalAlpha = 1;
+const pos = i => [lerp(cxs[i], W / 2, ex), lerp(cy, H / 2, ex)];
+const sc4 = lerp(1, 0.12, ex);
+const k0 = Math.max(0, spring(t - 11.0));
+const [x0, y0] = pos(0);
+const flip = 1 - 0.8 * Math.sin(Math.PI * E.inOutCubic(p(t, 12.5, 13.3)));
+g.fillStyle = P.accentColor;
+g.beginPath(); g.ellipse(x0, y0, Math.max(0.1, (S/2)*k0*sc4*flip), Math.max(0.1, (S/2)*k0*sc4), 0, 0, Math.PI*2); g.fill();
+const k1 = spring(t - 11.15);
+const [x1, y1] = pos(1);
+const rot = (1 - k1) * (-Math.PI / 4) + (Math.PI / 2) * E.inOutExpo(p(t, 12.7, 13.5));
+const sq = S * 0.84 * clamp(k1, 0, 2) * sc4;
+g.save(); g.translate(x1, y1); g.rotate(rot);
+g.fillStyle = '#0EA5E9'; g.globalAlpha = 1 - ex;
+g.fillRect(-sq / 2, -sq / 2, sq, sq); g.restore();
+const k2 = E.outCubic(p(t, 11.3, 12.25));
+const [x2, y2] = pos(2);
+const R = S * 0.62 * sc4, trot = Math.PI * E.inOutExpo(p(t, 12.9, 13.7));
+g.save(); g.translate(x2, y2 + R * 0.12); g.rotate(trot);
+g.beginPath();
+for (let j = 0; j < 3; j++) {
+  const a = -Math.PI / 2 + (j * 2 * Math.PI) / 3;
+  j ? g.lineTo(R * Math.cos(a), R * Math.sin(a)) : g.moveTo(R * Math.cos(a), R * Math.sin(a));
+}
+g.closePath(); g.lineWidth = P.strokeWidth * 2; g.strokeStyle = '#10B981'; g.globalAlpha = (1 - ex)*k2; g.stroke();
+g.restore();`
+    },
+    {
+      name: '05 Kinetik Duvar', start: 14.9, end: 18.4,
+      code: `const rows = [['DESIGN', 'o'], [P.headline3, 'f'], ['SYSTEMS', 'a'], ['TYPE', 'f'], ['RHYTHM', 'o']];
+const rh = Math.min(H / 5, 260), size = Math.round(P.titleSize * (W < 1200 ? 0.36 : 0.52)), lt0 = t - 14.9, ch = capH(size);
+rows.forEach(([word, style], i) => {
+  const cy = H / 2 + (i - 2) * rh;
+  g.save(); g.beginPath(); g.rect(0, cy - rh / 2, W, rh); g.clip();
+  if (i === 2) { g.fillStyle = P.accentColor; g.fillRect(0, cy - rh / 2, W, rh); }
+  const str = word + '  —  ';
+  font(size);
+  const uw = Math.max(40, g.measureText(str).width);
+  const dir = i % 2 ? 1 : -1, speed = (170 + i * 30) * P.textSpeed;
+  const off = dir * speed * lt0 + i * 317;
+  let x = ((off % uw) + uw) % uw - uw;
+  const by = cy + ch / 2;
+  g.lineWidth = P.strokeWidth; g.strokeStyle = P.textColor;
+  g.fillStyle = style === 'a' ? P.bgColor : P.textColor;
+  while (x < W) {
+    style === 'o' ? g.strokeText(str, x, by) : g.fillText(str, x, by);
+    x += uw;
+  }
+  g.restore();
+});`
+    },
+    {
+      name: '06 Final Logo', start: 18.4, end: 22.0,
+      code: `const size = fit(P.brandName, W * 0.62, Math.round(P.titleSize * 0.68));
+const L = lay(P.brandName, size, -0.005), ch = capH(size);
+const sq = ch, gap = Math.round(size * 0.16), gw = sq + gap + L.width;
+const x0 = Math.round((W - gw) / 2), top = Math.round(H / 2 - ch / 2 - 50);
+const mk = E.inOutExpo(p(t, 18.4, 19.2));
+const x = lerp(0, x0, mk), y = lerp(H / 2 - 2, top, mk), w = lerp(W, sq, mk), h = lerp(4, sq, mk);
+const wx = x0 + sq + gap, base = top + ch;
+g.save(); g.beginPath(); g.rect(x0 + sq + 2, 0, W, H); g.clip();
+font(size); g.fillStyle = P.textColor;
+L.chars.forEach((c, i) => {
+  const k = E.outExpo(p(t, 19.15 + i * 0.045, 20.15 + i * 0.045, P.textSpeed));
+  g.fillText(c, wx + L.xs[i] - (L.xs[i] + L.ws[i] + gap + 4) * (1 - k), base);
+});
+g.restore();
+g.fillStyle = P.accentColor; g.fillRect(x, y, w, h);
+mono(Math.min(P.subSize, Math.round(W * 0.024))); g.fillStyle = P.textColor; g.globalAlpha = 0.78;
+g.textAlign = 'left'; g.fillText(typed(P.subtitle, p(t, 20.0, 20.8, P.textSpeed)), x0, top + sq + 96);
+g.textAlign = 'right'; g.fillText(typed(P.tagLine, p(t, 20.3, 21.0, P.textSpeed)), x0 + gw, top + sq + 96);
+g.globalAlpha = 1; g.textAlign = 'left';`
+    }
+  ]
+};
+
+/* ============================================================================
+   4. PROJECT COMPILER & RUNTIME
+   ============================================================================ */
+function autoSuggestSfxForScene(sc, idx, total) {
+  const c = (sc.code || '').toLowerCase();
+  const n = (sc.name || '').toLowerCase();
+  if (idx === total - 1 || n.includes('final') || n.includes('logo')) return 'shimmer';
+  if (idx === 0 || n.includes('darbe') || n.includes('kare')) return 'impact';
+  if (c.includes('typed(') || n.includes('kinetik') || n.includes('duvar') || n.includes('matris')) return 'glitch';
+  if (c.includes('spring(') || n.includes('geometri')) return 'pop';
+  if (c.includes('fillrect(0, 0, w') || n.includes('alanı') || n.includes('perde')) return 'riser';
+  return 'whoosh';
+}
+
+function loadProject(proj, announce = true) {
+  PROJECT = JSON.parse(JSON.stringify(proj));
+  P = { ...DEFAULT_PROJECT.params, ...(PROJECT.params || {}) };
+  PROJECT.scenes.forEach((sc, idx) => {
+    if (!sc.sfx) sc.sfx = autoSuggestSfxForScene(sc, idx, PROJECT.scenes.length);
+  });
+  document.getElementById('projectBadge').textContent = PROJECT.title || 'Özel Video';
+  document.getElementById('scrubber').max = PROJECT.duration || 16;
+  compileAllScenes();
+  rebuildSceneTimelineAndSelect();
+  syncInputsFromParams();
+  curTime = 0;
+  drawFrame(0);
+  if (announce) flashUpdated('🚀 Yeni Video Sahneye Yüklendi');
+}
+
+function compileAllScenes() {
+  compiledScenes = PROJECT.scenes.map(sc => {
+    try {
+      const fn = new Function(
+        'g', 't', 'lt', 'W', 'H', 'P', 'HLP',
+        `const { E, clamp, lerp, p, spring, typed, font, mono, capH, lay, fit, centerText, strokeCenterText, drawLogo, drawScreen, ASSETS } = HLP;\n` + sc.code
+      );
+      return { ...sc, fn, err: null };
+    } catch (e) {
+      return { ...sc, fn: () => {}, err: e.message };
+    }
+  });
+}
+
+const SFX_LABELS = {
+  none: '🔇 Sessiz',
+  impact: '💥 Impact (Derin Vuruş)',
+  whoosh: '💨 Whoosh (Hızlı Geçiş)',
+  riser: '🚀 Riser (Gerilim)',
+  pop: '🏀 Pop (Esnek Yay)',
+  glitch: '⚡ Glitch (Siber Veri)',
+  shimmer: '✨ Shimmer (Final Logo)'
+};
+
+function rebuildSceneTimelineAndSelect() {
+  const pillsEl = document.getElementById('scenePills');
+  const selEl = document.getElementById('sceneSelectBox');
+  const sfxListEl = document.getElementById('sceneSfxAssignList');
+  pillsEl.innerHTML = '';
+  selEl.innerHTML = '';
+  if (sfxListEl) sfxListEl.innerHTML = '';
+
+  PROJECT.scenes.forEach((sc, idx) => {
+    const btn = document.createElement('button');
+    btn.className = 'scene-pill' + (idx === 0 ? ' active' : '');
+    btn.textContent = sc.name;
+    btn.addEventListener('click', () => {
+      curTime = sc.start + 0.35;
+      document.getElementById('scrubber').value = curTime;
+      selEl.value = String(idx);
+      document.getElementById('sceneCodeEditor').value = PROJECT.scenes[idx].code;
+      updateTrimmerInputs(idx);
+      if (sc.sfx && sc.sfx !== 'none') triggerLiveSfx(sc.sfx);
+      drawFrame(curTime);
+    });
+    pillsEl.appendChild(btn);
+
+    const opt = document.createElement('option');
+    opt.value = String(idx);
+    opt.textContent = `${sc.name} (${sc.start}s – ${sc.end}s)`;
+    selEl.appendChild(opt);
+
+    if (sfxListEl) {
+      const row = document.createElement('div');
+      row.className = 'field-box';
+      row.style.flexDirection = 'row';
+      row.style.alignItems = 'center';
+      row.style.justifyContent = 'space-between';
+      row.innerHTML = `<label style="min-width:95px;color:var(--text);">${sc.name}</label>`;
+      const sel = document.createElement('select');
+      sel.style.width = 'auto';
+      Object.entries(SFX_LABELS).forEach(([k, label]) => {
+        const o = document.createElement('option');
+        o.value = k;
+        o.textContent = label;
+        if ((sc.sfx || 'whoosh') === k) o.selected = true;
+        sel.appendChild(o);
+      });
+      sel.addEventListener('change', () => {
+        PROJECT.scenes[idx].sfx = sel.value;
+        compileAllScenes();
+        if (sel.value !== 'none') triggerLiveSfx(sel.value);
+      });
+      row.appendChild(sel);
+      sfxListEl.appendChild(row);
+    }
+  });
+
+  if (PROJECT.scenes[0]) {
+    document.getElementById('sceneCodeEditor').value = PROJECT.scenes[0].code;
+    updateTrimmerInputs(0);
+  }
+}
+
+function updateTrimmerInputs(idx) {
+  const sc = PROJECT && PROJECT.scenes ? PROJECT.scenes[idx] : null;
+  if (!sc) return;
+  const nameEl = document.getElementById('trimmerSceneName');
+  const startIn = document.getElementById('trimStartInput');
+  const endIn = document.getElementById('trimEndInput');
+  if (nameEl) nameEl.textContent = sc.name;
+  if (startIn) startIn.value = Number(sc.start).toFixed(1);
+  if (endIn) endIn.value = Number(sc.end).toFixed(1);
+}
+
+document.getElementById('applyTrimBtn').addEventListener('click', () => {
+  const selEl = document.getElementById('sceneSelectBox');
+  const idx = parseInt(selEl.value || '0', 10);
+  const sc = PROJECT?.scenes?.[idx];
+  if (!sc) return;
+  const nStart = parseFloat(document.getElementById('trimStartInput').value);
+  const nEnd = parseFloat(document.getElementById('trimEndInput').value);
+  if (isNaN(nStart) || isNaN(nEnd) || nEnd <= nStart) {
+    alert('Bitiş süresi başlangıç süresinden büyük olmalıdır.');
+    return;
+  }
+  pushHistory();
+  sc.start = Math.max(0, nStart);
+  sc.end = nEnd;
+  if (sc.end > (PROJECT.duration || 16)) {
+    PROJECT.duration = Math.ceil(sc.end);
+    document.getElementById('scrubber').max = PROJECT.duration;
+  }
+  compileAllScenes();
+  rebuildSceneTimelineAndSelect();
+  selEl.value = String(idx);
+  updateTrimmerInputs(idx);
+  curTime = sc.start;
+  document.getElementById('scrubber').value = curTime;
+  drawFrame(curTime);
+  flashUpdated(`⏱️ ${sc.name} (${sc.start}s – ${sc.end}s) Ayarlandı`);
+});
+
+document.getElementById('sceneSelectBox').addEventListener('change', e => {
+  const idx = parseInt(e.target.value, 10);
+  if (PROJECT.scenes[idx]) {
+    document.getElementById('sceneCodeEditor').value = PROJECT.scenes[idx].code;
+    updateTrimmerInputs(idx);
+    curTime = PROJECT.scenes[idx].start + 0.35;
+    drawFrame(curTime);
+  }
+});
+
+document.getElementById('applySceneCodeBtn').addEventListener('click', () => {
+  const idx = parseInt(document.getElementById('sceneSelectBox').value, 10);
+  const newCode = document.getElementById('sceneCodeEditor').value;
+  const errEl = document.getElementById('codeErr');
+  try {
+    new Function('g', 't', 'lt', 'W', 'H', 'P', 'HLP', newCode);
+    PROJECT.scenes[idx].code = newCode;
+    compileAllScenes();
+    errEl.textContent = '';
+    drawFrame(curTime);
+    flashUpdated(`✓ ${PROJECT.scenes[idx].name} Yamalandı`);
+  } catch (err) {
+    errEl.textContent = 'Sözdizimi hatası: ' + err.message;
+  }
+});
+
+const grainTiles = [0, 1, 2, 3].map(n => {
+  const c = document.createElement('canvas'); c.width = c.height = 256;
+  const x = c.getContext('2d'), d = x.createImageData(256, 256);
+  let s = 1234 + n * 9973;
+  for (let i = 0; i < d.data.length; i += 4) {
+    s = (s * 1664525 + 1013904223) >>> 0;
+    const v = s >>> 24;
+    d.data[i] = d.data[i + 1] = d.data[i + 2] = v;
+    d.data[i + 3] = 255;
+  }
+  x.putImageData(d, 0, 0);
+  return c;
+});
+
+function activeSceneIndex(t) {
+  for (let i = 0; i < compiledScenes.length; i++) {
+    if (t >= compiledScenes[i].start && t <= compiledScenes[i].end) return i;
+  }
+  return Math.max(0, compiledScenes.length - 1);
+}
+
+function drawFrame(t) {
+  g.setTransform(1, 0, 0, 1, 0, 0);
+  g.globalAlpha = 1;
+  g.textAlign = 'left';
+
+  if (ASSETS.bgVideoEl && ASSETS.bgVideoEl.readyState >= 2) {
+    if (!playing && ASSETS.bgVideoEl.duration) {
+      const targetT = (t + (ASSETS.videoOffset || 0)) % ASSETS.bgVideoEl.duration;
+      if (Math.abs(ASSETS.bgVideoEl.currentTime - targetT) > 0.08) {
+        ASSETS.bgVideoEl.currentTime = targetT;
+      }
+    }
+    const vw = ASSETS.bgVideoEl.videoWidth || W;
+    const vh = ASSETS.bgVideoEl.videoHeight || H;
+    const canvasRatio = W / H;
+    const videoRatio = vw / vh;
+    let sw, sh, sx, sy;
+    if (videoRatio > canvasRatio) {
+      sh = vh;
+      sw = vh * canvasRatio;
+      sx = (vw - sw) / 2;
+      sy = 0;
+    } else {
+      sw = vw;
+      sh = vw / canvasRatio;
+      sx = 0;
+      sy = (vh - sh) / 2;
+    }
+    g.drawImage(ASSETS.bgVideoEl, sx, sy, sw, sh, 0, 0, W, H);
+    g.save();
+    g.globalAlpha = ASSETS.bgOpacity;
+    g.fillStyle = P.bgColor || '#FFFFFF';
+    g.fillRect(0, 0, W, H);
+    g.restore();
+  } else {
+    g.fillStyle = P.bgColor || '#FFFFFF';
+    g.fillRect(0, 0, W, H);
+  }
+
+  g.save();
+  g.strokeStyle = P.textColor || '#0F172A';
+  g.globalAlpha = 0.055;
+  g.lineWidth = 1;
+  g.beginPath();
+  for (let i = 1; i < 12; i++) {
+    const x = Math.round((W / 12) * i) + 0.5;
+    g.moveTo(x, 0); g.lineTo(x, H);
+  }
+  g.stroke();
+  g.restore();
+
+  const idx = activeSceneIndex(t);
+  const sc = compiledScenes[idx];
+  if (sc && sc.fn) {
+    const lt = clamp((t - sc.start) / Math.max(0.001, sc.end - sc.start));
+    try {
+      g.save();
+      sc.fn(g, t, lt, W, H, P, HLP);
+      g.restore();
+    } catch (e) {}
+  }
+
+  // If the user uploaded a brand logo, also badge the top-left or final scene automatically
+  if (ASSETS.logoImg) {
+    g.save();
+    drawLogo(110, 125, 64);
+    g.restore();
+  }
+
+  const f = Math.floor(t * FPS + 1e-6);
+  if ((P.grainAmount || 0) > 0.005) {
+    g.save();
+    g.globalAlpha = P.grainAmount;
+    g.globalCompositeOperation = 'overlay';
+    g.translate(-((f * 37) % 256), -((f * 91) % 256));
+    g.fillStyle = g.createPattern(grainTiles[f % 4], 'repeat');
+    g.fillRect(0, 0, W + 512, H + 512);
+    g.restore();
+  }
+
+  g.save();
+  g.fillStyle = P.textColor; g.globalAlpha = 0.5;
+  mono(14, 500);
+  g.textAlign = 'left';
+  g.fillText(`${P.brandName} — ${PROJECT.title || 'MOTION'}`, 64, 72);
+  g.fillText(P.tagLine || '2026', 64, H - 56);
+  g.textAlign = 'right';
+  const pad = n => String(n).padStart(2, '0');
+  g.fillText(`00:00:${pad(Math.floor(f / FPS))}:${pad(f % FPS)}`, W - 64, 72);
+  g.fillText(`0${idx + 1} / 0${compiledScenes.length}`, W - 64, H - 56);
+  g.restore();
+}
+
+/* ============================================================================
+   5. 1-CLICK CLAUDE PRO LAUNCHER & ZERO-PASTE CLIPBOARD IMPORTER
+   ============================================================================ */
+async function copyPromptAndOpenClaude(conceptText) {
+  const res = await fetch('/api/claude-pro-prompt').then(r => r.json());
+  const fullPrompt = `${res.generatePrompt}\n\nKULLANICININ İSTEDİĞİ KONSEPT:\n"${conceptText}"`;
+  await navigator.clipboard.writeText(fullPrompt);
+  window.open('https://claude.ai/new', '_blank');
+  flashUpdated('📋 Prompt Kopyalandı & Claude.ai Açıldı');
+}
+
+document.getElementById('copyConvertPromptBtn').addEventListener('click', async () => {
+  const res = await fetch('/api/claude-pro-prompt').then(r => r.json());
+  const convertPrompt = `${res.generatePrompt}\n\nÖNEMLİ GÖREV:\nBu sohbette az önce / daha önce ürettiğimiz motion grafik tasarımını ve sahnelerini yukarıdaki ATLAS Studio Parametrik JSON şemasına (params + scenes[].code) birebir dönüştür. Tüm renkleri, hızları, fontları ve yazıları P.* değişkenlerine bağla ki stüdyoda canlı düzenleyebileyim. SADECE geçerli JSON döndür.`;
+  await navigator.clipboard.writeText(convertPrompt);
+  const btn = document.getElementById('copyConvertPromptBtn');
+  btn.textContent = '✓ Dönüştürme Promptu Kopyalandı! (Claude Sohbetine Yapıştır)';
+  setTimeout(() => {
+    btn.textContent = '🔄 Eski Claude Videomu Dönüştürme Promptunu Kopyala';
+  }, 3000);
+});
+
+function tryParseProjectFromText(rawText) {
+  if (!rawText || typeof rawText !== 'string') return null;
+  const match = rawText.match(/\{[\s\S]*\}/);
+  if (!match) return null;
+  try {
+    const parsed = JSON.parse(match[0]);
+    if (parsed && parsed.params && Array.isArray(parsed.scenes) && parsed.scenes.length > 0) {
+      return parsed;
+    }
+  } catch (e) {}
+  return null;
+}
+
+async function importFromClipboardDirect(silent = false) {
+  try {
+    const text = await navigator.clipboard.readText();
+    const proj = tryParseProjectFromText(text);
+    if (proj) {
+      lastImportedClipboardHash = text.slice(0, 120);
+      document.getElementById('clipboardBanner').classList.remove('show');
+      loadProject(proj, true);
+      setWorkflowMode('edit');
+      addMessage(
+        `🎉 Panodaki <b>${proj.title || 'Claude Pro Videosu'}</b> otomatik olarak sahneye yüklendi!`,
+        'bot',
+        [`${proj.scenes.length} Sahne`, `Marka: ${proj.params.brandName || '-'}`]
+      );
+      return true;
+    } else if (!silent) {
+      alert('Panoda henüz geçerli bir Claude Pro video JSON çıktısı bulunamadı. Önce Claude\'un verdiği cevabı kopyala knk!');
+    }
+  } catch (e) {
+    if (!silent) document.getElementById('claudeModal').classList.add('show');
+  }
+  return false;
+}
+
+document.getElementById('quickPasteBtn').addEventListener('click', () => importFromClipboardDirect(false));
+document.getElementById('clipboardBanner').addEventListener('click', () => importFromClipboardDirect(false));
+
+window.addEventListener('focus', async () => {
+  try {
+    const text = await navigator.clipboard.readText();
+    const hash = text.slice(0, 120);
+    if (hash !== lastImportedClipboardHash && tryParseProjectFromText(text)) {
+      document.getElementById('clipboardBanner').classList.add('show');
+    }
+  } catch (e) {}
+});
+
+/* ============================================================================
+   6. LIVE MCP SSE STREAM
+   ============================================================================ */
+try {
+  const es = new EventSource('/api/events');
+  es.addEventListener('mcp_update', e => {
+    const payload = JSON.parse(e.data);
+    if (payload.tool === 'create_motion_video' && payload.args?.scenes) {
+      loadProject(payload.args, true);
+      setWorkflowMode('edit');
+      addMessage(`🟣 <b>MCP Canlı Bağlantısı:</b> "${payload.args.title}" doğrudan sahneye yüklendi!`, 'bot');
+    } else if (payload.tool === 'patch_motion_video' && payload.args) {
+      const diffs = payload.args.paramPatch ? applyParamPatch(payload.args.paramPatch) : [];
+      if (Array.isArray(payload.args.scenePatches)) {
+        payload.args.scenePatches.forEach(sp => {
+          if (PROJECT.scenes[sp.index]) {
+            PROJECT.scenes[sp.index].code = sp.code;
+            diffs.push(`Sahne ${sp.index + 1} yamalandı`);
+          }
+        });
+        compileAllScenes();
+        drawFrame(curTime);
+      }
+      addMessage(`🟣 <b>MCP Canlı Yama:</b> ${payload.args.reply || 'Güncellendi'}`, 'bot', diffs);
+    }
+  });
+} catch (e) {}
+
+/* ============================================================================
+   7. DUAL-MODE WORKFLOW & CHAT HANDLER
+   ============================================================================ */
+let currentMode = 'edit';
+const modeCreateBtn = document.getElementById('modeCreateBtn');
+const modeEditBtn = document.getElementById('modeEditBtn');
+const chatInput = document.getElementById('chatInput');
+const sendBtn = document.getElementById('sendBtn');
+
+function setWorkflowMode(mode) {
+  currentMode = mode;
+  modeCreateBtn.classList.toggle('active', mode === 'create');
+  modeEditBtn.classList.toggle('active', mode === 'edit');
+
+  if (mode === 'create') {
+    chatInput.placeholder = 'Yeni video konseptini yaz: Örn "Kahve markası ROAST için reklam"...';
+    sendBtn.textContent = '✨ Üret';
+  } else {
+    chatInput.placeholder = 'Ne değişsin? Örn "Yazıyı yavaşlat, fontu Syne yap"...';
+    sendBtn.textContent = 'Uygula';
+  }
+}
+
+modeCreateBtn.addEventListener('click', () => setWorkflowMode('create'));
+modeEditBtn.addEventListener('click', () => setWorkflowMode('edit'));
+
+function pushHistory() {
+  historyStack.push(JSON.stringify({ P, scenes: PROJECT.scenes }));
+  if (historyStack.length > 40) historyStack.shift();
+}
+
+function syncInputsFromParams() {
+  document.querySelectorAll('[data-param]').forEach(el => {
+    const key = el.getAttribute('data-param');
+    if (P[key] !== undefined) el.value = P[key];
+  });
+  document.querySelectorAll('[data-val]').forEach(el => {
+    const key = el.getAttribute('data-val');
+    let v = P[key];
+    if (key === 'globalSpeed' || key === 'textSpeed') v = Number(v).toFixed(2) + 'x';
+    el.textContent = v;
+  });
+  // Update ambient stage glow & brand dot to match active accentColor!
+  const acc = P.accentColor || '#FF4B1F';
+  document.getElementById('ambientGlow').style.background = acc;
+  document.getElementById('brandDot').style.background = acc;
+  drawSpringCurvePreview();
+}
+
+function flashUpdated(label = '✓ Anında Güncellendi') {
+  const b = document.getElementById('flashBadge');
+  b.textContent = label;
+  b.classList.add('show');
+  clearTimeout(b._tm);
+  b._tm = setTimeout(() => b.classList.remove('show'), 1400);
+}
+
+function applyParamPatch(patch, jumpToTime = null) {
+  pushHistory();
+  const changed = [];
+  for (const [k, v] of Object.entries(patch)) {
+    if (v !== undefined && P[k] !== v) {
+      P[k] = v;
+      changed.push(`${k} → ${v}`);
+    }
+  }
+  syncInputsFromParams();
+  if (jumpToTime !== null) curTime = jumpToTime;
+  drawFrame(curTime);
+  flashUpdated();
+  return changed;
+}
+
+// 1-Click Theme Swatches
+document.querySelectorAll('.swatch-preset').forEach(btn => {
+  btn.addEventListener('click', () => {
+    const [bgColor, textColor, accentColor] = btn.getAttribute('data-theme').split(',');
+    applyParamPatch({ bgColor, textColor, accentColor });
+  });
+});
+
+document.querySelectorAll('[data-param]').forEach(el => {
+  el.addEventListener('input', () => {
+    const key = el.getAttribute('data-param');
+    const val = el.type === 'range' ? parseFloat(el.value) : el.value;
+    P[key] = val;
+    syncInputsFromParams();
+    drawFrame(curTime);
+  });
+});
+
+function localTurkishIntentParser(rawText) {
+  const txt = rawText.toLowerCase().trim();
+  const patch = {};
+  const notes = [];
+
+  if (txt.includes('yavaş') || txt.includes('ağır')) {
+    if (txt.includes('yazı') || txt.includes('metin') || txt.includes('harf')) {
+      patch.textSpeed = Math.max(0.25, +(P.textSpeed * 0.65).toFixed(2));
+      notes.push(`Yazı hızını ${patch.textSpeed}x yaptım`);
+    } else {
+      patch.globalSpeed = Math.max(0.25, +(P.globalSpeed * 0.7).toFixed(2));
+      patch.textSpeed = Math.max(0.25, +(P.textSpeed * 0.75).toFixed(2));
+      notes.push(`Genel hızı ${patch.globalSpeed}x olarak yavaşlattım`);
+    }
+  }
+  if (txt.includes('hızlan') || txt.includes('daha hızlı') || txt.includes('enerjik') || txt.includes('seri')) {
+    patch.globalSpeed = Math.min(2.5, +(P.globalSpeed * 1.35).toFixed(2));
+    patch.textSpeed = Math.min(2.5, +(P.textSpeed * 1.35).toFixed(2));
+    notes.push(`Hızı ${patch.globalSpeed}x olarak artırdım`);
+  }
+
+  const fontMap = [
+    ['syne', 'Syne'], ['bebas', 'Bebas Neue'], ['playfair', 'Playfair Display'],
+    ['serif', 'Playfair Display'], ['space', 'Space Grotesk'], ['outfit', 'Outfit'],
+    ['mono', 'JetBrains Mono'], ['archivo', 'Archivo']
+  ];
+  for (const [kw, fontName] of fontMap) {
+    if (txt.includes(kw)) {
+      patch.displayFont = fontName;
+      notes.push(`Başlık fontunu ${fontName} yaptım`);
+      break;
+    }
+  }
+  if (!patch.displayFont && (txt.includes('font') || txt.includes('yazı tipi'))) {
+    const pool = ['Syne', 'Bebas Neue', 'Space Grotesk', 'Outfit', 'Playfair Display', 'Archivo'];
+    patch.displayFont = pool[(pool.indexOf(P.displayFont) + 1) % pool.length];
+    notes.push(`Fontu ${patch.displayFont} olarak değiştirdim`);
+  }
+
+  if (txt.includes('küçült') || txt.includes('çok büyük') || txt.includes('daha küçük')) {
+    patch.titleSize = Math.max(120, Math.round(P.titleSize * 0.8));
+    notes.push(`Başlık boyutunu ${patch.titleSize}px'e indirdim`);
+  } else if (txt.includes('büyüt') || txt.includes('çok küçük') || txt.includes('daha büyük')) {
+    patch.titleSize = Math.min(400, Math.round(P.titleSize * 1.18));
+    notes.push(`Başlık boyutunu ${patch.titleSize}px'e büyüttüm`);
+  }
+
+  if (txt.includes('aralığını aç') || txt.includes('ferah')) {
+    patch.tracking = +(P.tracking + 0.04).toFixed(3);
+    notes.push(`Harf aralığını açtım (${patch.tracking})`);
+  } else if (txt.includes('aralığını kıs') || txt.includes('sıkıştır')) {
+    patch.tracking = +(P.tracking - 0.03).toFixed(3);
+    notes.push(`Harf aralığını daralttım (${patch.tracking})`);
+  }
+
+  const colorKeywords = [
+    [['elektrik mavi', 'mavi', 'blue', 'kobalt'], '#2563EB'],
+    [['zümrüt', 'yeşil', 'neon yeşil', 'emerald'], '#00F5A0'],
+    [['sarı', 'altın', 'kehribar', 'amber', 'lime'], '#CCFF00'],
+    [['kırmızı', 'kan', 'kızıl'], '#EF4444'],
+    [['pembe', 'fuşya', 'rose'], '#F43F5E'],
+    [['turuncu', 'orange'], '#FF4B1F'],
+    [['mor', 'eflatun', 'violet'], '#8B5CF6'],
+    [['turkuaz', 'cyan'], '#06B6D4']
+  ];
+  if (txt.includes('açık tema') || txt.includes('beyaz arka') || txt.includes('kağıt üstü')) {
+    patch.bgColor = '#ECEAE4';
+    patch.textColor = '#0B0B0C';
+    notes.push('Açık temaya geçtim');
+  } else if (txt.includes('koyu tema') || txt.includes('siyah arka')) {
+    patch.bgColor = '#0B0B0C';
+    patch.textColor = '#ECEAE4';
+    notes.push('Koyu temaya geçtim');
+  } else {
+    for (const [kws, hex] of colorKeywords) {
+      if (kws.some(k => txt.includes(k))) {
+        if (txt.includes('arka plan') || txt.includes('zemin')) {
+          patch.bgColor = hex;
+          notes.push(`Zemin rengini ${hex} yaptım`);
+        } else {
+          patch.accentColor = hex;
+          notes.push(`Vurgu rengini ${hex} yaptım`);
+        }
+        break;
+      }
+    }
+  }
+
+  if (txt.includes('yaylan') || txt.includes('zıpla') || txt.includes('esnek')) {
+    patch.springDamp = 0.2;
+    patch.springStiff = 16;
+    notes.push('Yay fiziğini daha esnek yaptım');
+  }
+
+  const quoted = rawText.match(/["“”']([^"“”']+)["“”']/);
+  if (quoted) {
+    const val = quoted[1];
+    if (txt.includes('logo') || txt.includes('marka')) {
+      patch.brandName = val.toUpperCase();
+      notes.push(`Marka adını "${patch.brandName}" yaptım`);
+    } else if (txt.includes('alt')) {
+      patch.subtitle = val;
+      notes.push(`Alt yazıyı "${val}" yaptım`);
+    } else {
+      const parts = val.trim().split(/\s+/);
+      patch.headline1 = (parts[0] || val).toUpperCase();
+      if (parts[1]) patch.headline2 = parts.slice(1).join(' ').toUpperCase();
+      notes.push(`Başlığı "${val.toUpperCase()}" olarak değiştirdim`);
+    }
+  }
+
+  return { patch, notes };
+}
+
+const messagesEl = document.getElementById('messages');
+function addMessage(text, who = 'bot', diffs = [], conceptForClaudeBridge = null) {
+  const div = document.createElement('div');
+  div.className = `msg ${who}`;
+  div.innerHTML = text;
+  if (diffs.length) {
+    const wrap = document.createElement('div');
+    diffs.forEach(d => {
+      const s = document.createElement('span');
+      s.className = 'diff-pill';
+      s.textContent = d;
+      wrap.appendChild(s);
+    });
+    div.appendChild(wrap);
+  }
+  if (conceptForClaudeBridge) {
+    const act = document.createElement('div');
+    act.className = 'inline-actions';
+
+    const btn1 = document.createElement('button');
+    btn1.className = 'btn-claude';
+    btn1.textContent = '🟣 Claude Pro\'da Üret (1 Tıkla Kopyala & Aç)';
+    btn1.addEventListener('click', () => copyPromptAndOpenClaude(conceptForClaudeBridge));
+
+    const btn2 = document.createElement('button');
+    btn2.className = 'btn-ok';
+    btn2.textContent = '📋 Panodan Otomatik Yükle';
+    btn2.addEventListener('click', () => importFromClipboardDirect(false));
+
+    act.appendChild(btn1);
+    act.appendChild(btn2);
+    div.appendChild(act);
+  }
+  messagesEl.appendChild(div);
+  messagesEl.scrollTop = messagesEl.scrollHeight;
+}
+
+async function handleUserSubmission(prompt) {
+  if (!prompt.trim()) return;
+  addMessage(prompt, 'user');
+
+  const provider = document.getElementById('apiProvider').value;
+  const apiKey = document.getElementById('apiKeyInput').value.trim();
+  const low = prompt.toLowerCase();
+
+  const looksLikeNewVideo = currentMode === 'create' ||
+    (low.includes('üret') && (low.includes('marka') || low.includes('reklam') || low.includes('tanıtım') || low.includes('için')));
+
+  if (looksLikeNewVideo) {
+    if (provider !== 'local' && apiKey) {
+      addMessage('API üzerinden yeni parametrik sahneler üretiliyor...', 'bot');
+      const res = await fetch('/api/ai-generate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ provider, apiKey, prompt })
+      }).then(r => r.json());
+
+      if (res.ok && res.project && Array.isArray(res.project.scenes)) {
+        loadProject(res.project);
+        setWorkflowMode('edit');
+        addMessage(`<b>${res.project.title}</b> sahneye yüklendi! Şimdi <b>🎨 Canlı Tasarla</b> modundasın.`, 'bot');
+        return;
+      }
+    }
+
+    const newProj = buildProjectFromConcept(prompt);
+    loadProject(newProj);
+    setWorkflowMode('edit');
+    addMessage(
+      `<b>${newProj.title}</b> sahneye kuruldu! İstersen hemen sağdan düzenle, istersen de aşağıdaki butonla kendi <b>Claude Pro</b> aboneliğinde özel sahne kodlarını ürettirip tek tıkla panodan çek:`,
+      'bot',
+      [`Marka: ${newProj.params.brandName}`, `Font: ${newProj.params.displayFont}`],
+      prompt
+    );
+    return;
+  }
+
+  if (provider !== 'local' && apiKey) {
+    const res = await fetch('/api/ai-patch', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ provider, apiKey, prompt, currentParams: P, scenes: PROJECT.scenes })
+    }).then(r => r.json());
+
+    if (res.ok) {
+      const diffs = res.paramPatch ? applyParamPatch(res.paramPatch) : [];
+      if (Array.isArray(res.scenePatches) && res.scenePatches.length) {
+        res.scenePatches.forEach(sp => {
+          if (PROJECT.scenes[sp.index]) {
+            PROJECT.scenes[sp.index].code = sp.code;
+            diffs.push(`Sahne ${sp.index + 1} yamalandı`);
+          }
+        });
+        compileAllScenes();
+        drawFrame(curTime);
+      }
+      addMessage(res.reply || 'İstediğin noktayı anında yamaladım knk.', 'bot', diffs);
+      return;
+    }
+  }
+
+  const { patch, notes } = localTurkishIntentParser(prompt);
+  if (Object.keys(patch).length > 0) {
+    const diffs = applyParamPatch(patch);
+    addMessage(notes.join(' · ') + ' — sıfırdan render almadan anında güncellendi.', 'bot', diffs);
+  } else {
+    addMessage(
+      'Yeni bir video üretmek için üstteki <b>✨ Yeni Video Üret</b> sekmesine geçebilir veya mevcut videoyu düzenlemek için <b>"yazıyı yavaşlat"</b>, <b>"fontu Syne yap"</b>, <b>"rengi mavi yap"</b> yazabilirsin knk.',
+      'bot'
+    );
+  }
+}
+
+document.getElementById('chatForm').addEventListener('submit', e => {
+  e.preventDefault();
+  const val = chatInput.value;
+  chatInput.value = '';
+  handleUserSubmission(val);
+});
+
+const claudeModal = document.getElementById('claudeModal');
+document.getElementById('claudeModalBtn').addEventListener('click', () => claudeModal.classList.add('show'));
+document.getElementById('closeClaudeModal').addEventListener('click', () => claudeModal.classList.remove('show'));
+
+document.getElementById('importBridgeBtn').addEventListener('click', () => {
+  const raw = document.getElementById('bridgePasteBox').value.trim();
+  const proj = tryParseProjectFromText(raw);
+  if (proj) {
+    loadProject(proj);
+    claudeModal.classList.remove('show');
+    setWorkflowMode('edit');
+    addMessage(`Claude Pro'dan gelen <b>${proj.title}</b> sahneye yüklendi!`, 'bot');
+  } else {
+    alert('Geçerli bir JSON bulunamadı.');
+  }
+});
+
+// Voice, Tabs, Undo, Playback & Export
+const SpeechRec = window.SpeechRecognition || window.webkitSpeechRecognition;
+const micBtn = document.getElementById('micBtn');
+if (SpeechRec) {
+  const rec = new SpeechRec();
+  rec.lang = 'tr-TR';
+  rec.onstart = () => micBtn.classList.add('listening');
+  rec.onend = () => micBtn.classList.remove('listening');
+  rec.onresult = e => {
+    const tr = e.results[0][0].transcript;
+    chatInput.value = tr;
+    handleUserSubmission(tr);
+  };
+  micBtn.addEventListener('click', () => rec.start());
+} else {
+  micBtn.style.display = 'none';
+}
+
+document.querySelectorAll('.tab').forEach(tab => {
+  tab.addEventListener('click', () => {
+    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('.pane').forEach(p => p.classList.remove('active'));
+    tab.classList.add('active');
+    document.getElementById(tab.getAttribute('data-pane')).classList.add('active');
+  });
+});
+
+document.getElementById('undoBtn').addEventListener('click', () => {
+  if (!historyStack.length) return;
+  const prev = JSON.parse(historyStack.pop());
+  P = prev.P;
+  PROJECT.scenes = prev.scenes;
+  compileAllScenes();
+  syncInputsFromParams();
+  drawFrame(curTime);
+  flashUpdated('↶ Geri Alındı');
+});
+
+/* ============================================================================
+   10. STUDIO SFX SYNTHESIZER (WebAudio + Offline WAV Renderer) & MEDIA ASSETS
+   ============================================================================ */
+let liveAudioCtx = null;
+let sfxEnabled = true;
+let prevSceneIdx = -1;
+
+function getAudioCtx() {
+  if (!liveAudioCtx) {
+    const AC = window.AudioContext || window.webkitAudioContext;
+    if (AC) liveAudioCtx = new AC();
+  }
+  if (liveAudioCtx && liveAudioCtx.state === 'suspended') {
+    liveAudioCtx.resume().catch(() => {});
+  }
+  return liveAudioCtx;
+}
+
+function scheduleSfxOnContext(actx, type, startTime = 0) {
+  if (!actx || !type || type === 'none') return;
+  const t0 = Math.max(0, startTime);
+
+  if (type === 'impact') {
+    // Sub bass drop + punch transient
+    const osc = actx.createOscillator();
+    const gain = actx.createGain();
+    osc.type = 'sine';
+    osc.frequency.setValueAtTime(135, t0);
+    osc.frequency.exponentialRampToValueAtTime(32, t0 + 0.48);
+    gain.gain.setValueAtTime(0.65, t0);
+    gain.gain.exponentialRampToValueAtTime(0.001, t0 + 0.52);
+    osc.connect(gain); gain.connect(actx.destination);
+    osc.start(t0); osc.stop(t0 + 0.54);
+  } else if (type === 'whoosh') {
+    // Filtered noise sweep
+    const dur = 0.36;
+    const buf = actx.createBuffer(1, Math.floor(actx.sampleRate * dur), actx.sampleRate);
+    const data = buf.getChannelData(0);
+    for (let i = 0; i < data.length; i++) data[i] = (Math.random() * 2 - 1) * Math.sin((i / data.length) * Math.PI);
+    const src = actx.createBufferSource();
+    src.buffer = buf;
+    const flt = actx.createBiquadFilter();
+    flt.type = 'bandpass';
+    flt.frequency.setValueAtTime(220, t0);
+    flt.frequency.exponentialRampToValueAtTime(2400, t0 + dur * 0.55);
+    flt.frequency.exponentialRampToValueAtTime(380, t0 + dur);
+    const gain = actx.createGain();
+    gain.gain.setValueAtTime(0.42, t0);
+    gain.gain.exponentialRampToValueAtTime(0.01, t0 + dur);
+    src.connect(flt); flt.connect(gain); gain.connect(actx.destination);
+    src.start(t0);
+  } else if (type === 'riser') {
+    // Rising synth sweep
+    const osc = actx.createOscillator();
+    const gain = actx.createGain();
+    osc.type = 'sawtooth';
+    osc.frequency.setValueAtTime(140, t0);
+    osc.frequency.exponentialRampToValueAtTime(880, t0 + 0.55);
+    const flt = actx.createBiquadFilter();
+    flt.type = 'lowpass';
+    flt.frequency.setValueAtTime(300, t0);
+    flt.frequency.exponentialRampToValueAtTime(3200, t0 + 0.55);
+    gain.gain.setValueAtTime(0.02, t0);
+    gain.gain.linearRampToValueAtTime(0.28, t0 + 0.45);
+    gain.gain.exponentialRampToValueAtTime(0.001, t0 + 0.58);
+    osc.connect(flt); flt.connect(gain); gain.connect(actx.destination);
+    osc.start(t0); osc.stop(t0 + 0.6);
+  } else if (type === 'pop') {
+    // Elastic spring pluck
+    const osc = actx.createOscillator();
+    const gain = actx.createGain();
+    osc.type = 'triangle';
+    osc.frequency.setValueAtTime(240, t0);
+    osc.frequency.exponentialRampToValueAtTime(620, t0 + 0.09);
+    osc.frequency.exponentialRampToValueAtTime(380, t0 + 0.22);
+    gain.gain.setValueAtTime(0.45, t0);
+    gain.gain.exponentialRampToValueAtTime(0.001, t0 + 0.24);
+    osc.connect(gain); gain.connect(actx.destination);
+    osc.start(t0); osc.stop(t0 + 0.25);
+  } else if (type === 'glitch') {
+    // Digital cyber telemetry blips
+    [520, 1040, 780, 1480].forEach((freq, i) => {
+      const osc = actx.createOscillator();
+      const gain = actx.createGain();
+      osc.type = 'square';
+      const st = t0 + i * 0.045;
+      osc.frequency.setValueAtTime(freq, st);
+      gain.gain.setValueAtTime(0.14, st);
+      gain.gain.exponentialRampToValueAtTime(0.005, st + 0.04);
+      osc.connect(gain); gain.connect(actx.destination);
+      osc.start(st); osc.stop(st + 0.042);
+    });
+  } else if (type === 'shimmer') {
+    // Warm final logo chord
+    [261.63, 329.63, 392.00, 523.25].forEach((freq, i) => {
+      const osc = actx.createOscillator();
+      const gain = actx.createGain();
+      osc.type = 'triangle';
+      const st = t0 + i * 0.04;
+      osc.frequency.setValueAtTime(freq, st);
+      gain.gain.setValueAtTime(0.16, st);
+      gain.gain.exponentialRampToValueAtTime(0.001, st + 0.85);
+      osc.connect(gain); gain.connect(actx.destination);
+      osc.start(st); osc.stop(st + 0.88);
+    });
+  }
+}
+
+function triggerLiveSfx(type) {
+  if (!sfxEnabled) return;
+  try {
+    const actx = getAudioCtx();
+    if (actx) scheduleSfxOnContext(actx, type, actx.currentTime);
+  } catch (e) {}
+}
+
+async function renderProjectAudioWavBase64(totalDurationSec) {
+  try {
+    const OfflineAC = window.OfflineAudioContext || window.webkitOfflineAudioContext;
+    if (!OfflineAC) return null;
+    const sr = 44100;
+    const len = Math.max(1, Math.ceil(totalDurationSec * sr));
+    const octx = new OfflineAC(2, len, sr);
+    const spd = Math.max(0.25, P.globalSpeed || 1);
+    PROJECT.scenes.forEach(sc => {
+      if (sc.sfx && sc.sfx !== 'none') {
+        scheduleSfxOnContext(octx, sc.sfx, (sc.start || 0) / spd);
+      }
+    });
+    const rendered = await octx.startRendering();
+    // Encode AudioBuffer to 16-bit PCM WAV
+    const numCh = rendered.numberOfChannels;
+    const samples = rendered.length;
+    const buf = new ArrayBuffer(44 + samples * numCh * 2);
+    const view = new DataView(buf);
+    const writeStr = (off, str) => { for (let i = 0; i < str.length; i++) view.setUint8(off + i, str.charCodeAt(i)); };
+    writeStr(0, 'RIFF');
+    view.setUint32(4, 36 + samples * numCh * 2, true);
+    writeStr(8, 'WAVE');
+    writeStr(12, 'fmt ');
+    view.setUint32(16, 16, true);
+    view.setUint16(20, 1, true);
+    view.setUint16(22, numCh, true);
+    view.setUint32(24, sr, true);
+    view.setUint32(28, sr * numCh * 2, true);
+    view.setUint16(32, numCh * 2, true);
+    view.setUint16(34, 16, true);
+    writeStr(36, 'data');
+    view.setUint32(40, samples * numCh * 2, true);
+    let offset = 44;
+    const chData = [];
+    for (let c = 0; c < numCh; c++) chData.push(rendered.getChannelData(c));
+    for (let i = 0; i < samples; i++) {
+      for (let c = 0; c < numCh; c++) {
+        const s = clamp(chData[c][i], -1, 1);
+        view.setInt16(offset, s < 0 ? s * 0x8000 : s * 0x7FFF, true);
+        offset += 2;
+      }
+    }
+    const bytes = new Uint8Array(buf);
+    let binary = '';
+    for (let i = 0; i < bytes.byteLength; i += 8192) {
+      binary += String.fromCharCode.apply(null, bytes.subarray(i, i + 8192));
+    }
+    return btoa(binary);
+  } catch (e) {
+    return null;
+  }
+}
+
+document.querySelectorAll('[data-sfx-test]').forEach(btn => {
+  btn.addEventListener('click', () => {
+    const t = btn.getAttribute('data-sfx-test');
+    sfxEnabled = true;
+    document.getElementById('sfxToggleBtn').textContent = '🔊 SFX: Açık';
+    triggerLiveSfx(t);
+  });
+});
+
+document.getElementById('aiAutoSfxBtn').addEventListener('click', () => {
+  PROJECT.scenes.forEach((sc, idx) => {
+    sc.sfx = autoSuggestSfxForScene(sc, idx, PROJECT.scenes.length);
+  });
+  rebuildSceneTimelineAndSelect();
+  triggerLiveSfx('shimmer');
+  flashUpdated('🤖 AI Tüm Sahnelere Otomatik Ses Atadı');
+});
+
+document.getElementById('sfxToggleBtn').addEventListener('click', () => {
+  sfxEnabled = !sfxEnabled;
+  const btn = document.getElementById('sfxToggleBtn');
+  btn.textContent = sfxEnabled ? '🔊 SFX: Açık' : '🔇 SFX: Kapalı';
+  btn.classList.toggle('btn-ok', sfxEnabled);
+  if (sfxEnabled) triggerLiveSfx('pop');
+});
+
+// Media Asset Handlers (#4: Real Video Overlay, Logo & UI Screenshot)
+document.getElementById('bgVideoInput').addEventListener('change', e => {
+  const file = e.target.files?.[0];
+  if (!file) return;
+  const vid = document.createElement('video');
+  vid.src = URL.createObjectURL(file);
+  vid.muted = false;
+  vid.volume = ASSETS.videoVolume || 0.8;
+  vid.loop = true;
+  vid.playsInline = true;
+  vid.onloadedmetadata = () => {
+    const dur = Math.ceil(vid.duration || 60);
+    const vSlider = document.getElementById('videoOffsetSlider');
+    if (vSlider) vSlider.max = String(dur);
+  };
+  vid.play().catch(() => {});
+  ASSETS.bgVideoEl = vid;
+  ASSETS.bgOpacity = 0.25; // Automatically make motion background semi-transparent so real video shines through!
+  document.getElementById('bgOpacitySlider').value = '0.25';
+  document.getElementById('bgOpacityVal').textContent = '25%';
+  document.getElementById('bgVideoStatus').textContent = 'Aktif (Overlay)';
+  const offsetCtrl = document.getElementById('videoOffsetCtrl');
+  const syncRow = document.getElementById('videoSyncRow');
+  if (offsetCtrl) offsetCtrl.style.display = 'flex';
+  if (syncRow) syncRow.style.display = 'grid';
+  flashUpdated('📹 Gerçek Video Katmanı Yüklendi');
+});
+
+document.getElementById('clearBgVideoBtn').addEventListener('click', () => {
+  if (ASSETS.bgVideoEl) {
+    ASSETS.bgVideoEl.pause();
+    ASSETS.bgVideoEl = null;
+  }
+  ASSETS.bgOpacity = 1.0;
+  document.getElementById('bgOpacitySlider').value = '1';
+  document.getElementById('bgOpacityVal').textContent = '100%';
+  document.getElementById('bgVideoStatus').textContent = 'Kapalı';
+  const offsetCtrl = document.getElementById('videoOffsetCtrl');
+  const syncRow = document.getElementById('videoSyncRow');
+  if (offsetCtrl) offsetCtrl.style.display = 'none';
+  if (syncRow) syncRow.style.display = 'none';
+  drawFrame(curTime);
+});
+
+document.getElementById('bgOpacitySlider').addEventListener('input', e => {
+  ASSETS.bgOpacity = parseFloat(e.target.value);
+  document.getElementById('bgOpacityVal').textContent = Math.round(ASSETS.bgOpacity * 100) + '%';
+  drawFrame(curTime);
+});
+
+const videoOffsetSlider = document.getElementById('videoOffsetSlider');
+if (videoOffsetSlider) {
+  videoOffsetSlider.addEventListener('input', e => {
+    ASSETS.videoOffset = parseFloat(e.target.value);
+    document.getElementById('videoOffsetVal').textContent = ASSETS.videoOffset.toFixed(1) + 's';
+    if (ASSETS.bgVideoEl && ASSETS.bgVideoEl.duration) {
+      ASSETS.bgVideoEl.currentTime = (curTime + ASSETS.videoOffset) % ASSETS.bgVideoEl.duration;
+    }
+    drawFrame(curTime);
+  });
+}
+
+const syncDurationToVideoBtn = document.getElementById('syncDurationToVideoBtn');
+if (syncDurationToVideoBtn) {
+  syncDurationToVideoBtn.addEventListener('click', () => {
+    if (ASSETS.bgVideoEl && ASSETS.bgVideoEl.duration) {
+      const newDur = Math.ceil(ASSETS.bgVideoEl.duration);
+      PROJECT.duration = newDur;
+      document.getElementById('scrubber').max = newDur;
+      flashUpdated(`⏱️ Proje Süresi ${newDur}s Olarak Eşitlendi`);
+      rebuildSceneTimelineAndSelect();
+      drawFrame(curTime);
+    }
+  });
+}
+
+const videoVolSlider = document.getElementById('videoVolSlider');
+if (videoVolSlider) {
+  videoVolSlider.addEventListener('input', e => {
+    ASSETS.videoVolume = parseFloat(e.target.value);
+    document.getElementById('videoVolVal').textContent = Math.round(ASSETS.videoVolume * 100) + '%';
+    if (ASSETS.bgVideoEl) {
+      ASSETS.bgVideoEl.volume = ASSETS.videoVolume;
+    }
+  });
+}
+
+document.getElementById('logoAssetInput').addEventListener('change', e => {
+  const file = e.target.files?.[0];
+  if (!file) return;
+  const img = new Image();
+  img.onload = () => {
+    ASSETS.logoImg = img;
+    drawFrame(curTime);
+    flashUpdated('🏷️ Marka Logosu Sahneye Eklendi');
+  };
+  img.src = URL.createObjectURL(file);
+});
+
+document.getElementById('screenAssetInput').addEventListener('change', e => {
+  const file = e.target.files?.[0];
+  if (!file) return;
+  const img = new Image();
+  img.onload = () => {
+    ASSETS.screenImg = img;
+    drawFrame(curTime);
+    flashUpdated('🖼️ Ekran Görüntüsü Yüklendi');
+  };
+  img.src = URL.createObjectURL(file);
+});
+
+document.getElementById('injectScreenSceneBtn').addEventListener('click', () => {
+  const idx = activeSceneIndex(curTime);
+  if (!PROJECT.scenes[idx]) return;
+  pushHistory();
+  const sc = PROJECT.scenes[idx];
+  sc.code = `const k = spring(lt * 1.4);
+g.save();
+g.translate(W/2, H/2 + (1 - k) * 140);
+g.scale(0.82 + 0.18 * k, 0.82 + 0.18 * k);
+drawScreen(0, 20, 1020, 580, 24);
+g.restore();
+const s = fit(P.headline1, 1400, P.titleSize * 0.42);
+centerText(P.headline1, W/2, 130, s, P.textColor);`;
+  compileAllScenes();
+  document.getElementById('sceneCodeEditor').value = sc.code;
+  drawFrame(curTime);
+  flashUpdated(`✨ ${sc.name} Vitrin Kartına Dönüştürüldü`);
+});
+
+let playing = true;
+let loopScene = false;
+let curTime = 0;
+let lastNow = performance.now();
+
+const playBtn = document.getElementById('playBtn');
+const loopSceneBtn = document.getElementById('loopSceneBtn');
+const scrubber = document.getElementById('scrubber');
+const tcReadout = document.getElementById('tcReadout');
+
+playBtn.addEventListener('click', () => {
+  playing = !playing;
+  playBtn.textContent = playing ? '⏸ Duraklat' : '▶ Oynat';
+  if (ASSETS.bgVideoEl) {
+    if (playing) {
+      ASSETS.bgVideoEl.currentTime = (curTime + (ASSETS.videoOffset || 0)) % (ASSETS.bgVideoEl.duration || 1);
+      ASSETS.bgVideoEl.play().catch(() => {});
+    } else {
+      ASSETS.bgVideoEl.pause();
+    }
+  }
+  lastNow = performance.now();
+});
+
+loopSceneBtn.addEventListener('click', () => {
+  loopScene = !loopScene;
+  loopSceneBtn.textContent = loopScene ? '🔁 Sahneyi Döndür: Açık' : '🔁 Sahneyi Döndür: Kapalı';
+  loopSceneBtn.style.borderColor = loopScene ? 'var(--acc)' : '';
+});
+
+scrubber.addEventListener('input', () => {
+  curTime = parseFloat(scrubber.value);
+  if (ASSETS.bgVideoEl && ASSETS.bgVideoEl.duration) {
+    ASSETS.bgVideoEl.currentTime = (curTime + (ASSETS.videoOffset || 0)) % ASSETS.bgVideoEl.duration;
+  }
+  drawFrame(curTime);
+});
+
+function tick(now) {
+  const dur = PROJECT.duration || 16;
+  if (playing) {
+    const dt = ((now - lastNow) / 1000) * (P.globalSpeed || 1);
+    if (loopScene) {
+      const idx = activeSceneIndex(curTime);
+      const sc = compiledScenes[idx];
+      curTime += dt;
+      if (curTime >= sc.end) curTime = sc.start;
+    } else {
+      curTime = (curTime + dt) % dur;
+    }
+    scrubber.value = curTime;
+    if (ASSETS.bgVideoEl && ASSETS.bgVideoEl.duration && !ASSETS.bgVideoEl.paused) {
+      const expectedT = (curTime + (ASSETS.videoOffset || 0)) % ASSETS.bgVideoEl.duration;
+      if (Math.abs(ASSETS.bgVideoEl.currentTime - expectedT) > 0.3) {
+        ASSETS.bgVideoEl.currentTime = expectedT;
+      }
+    }
+    drawFrame(curTime);
+  }
+  lastNow = now;
+  tcReadout.textContent = `${curTime.toFixed(2).padStart(5, '0')}s / ${dur.toFixed(2)}s`;
+  const actIdx = activeSceneIndex(curTime);
+  if (playing && actIdx !== prevSceneIdx) {
+    prevSceneIdx = actIdx;
+    const sc = PROJECT.scenes[actIdx];
+    if (sc && sc.sfx && sc.sfx !== 'none') triggerLiveSfx(sc.sfx);
+  }
+  [...document.querySelectorAll('.scene-pill')].forEach((el, i) => el.classList.toggle('active', i === actIdx));
+  requestAnimationFrame(tick);
+}
+
+document.getElementById('exportBtn').addEventListener('click', async () => {
+  const modal = document.getElementById('exportModal');
+  const status = document.getElementById('exportStatus');
+  const barEl = document.getElementById('exportBar');
+  const wasPlaying = playing;
+  playing = false;
+  modal.classList.add('show');
+  barEl.style.width = '0%';
+
+  try {
+    const startRes = await fetch('/api/render/start', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ fps: FPS })
+    }).then(r => r.json());
+
+    const jobId = startRes.jobId;
+    const dur = PROJECT.duration || 16;
+    const totalDurationSec = dur / (P.globalSpeed || 1);
+    const totalFrames = Math.round(totalDurationSec * FPS);
+    const batchSize = 15;
+    let batch = [];
+
+    for (let f = 0; f < totalFrames; f++) {
+      const t = (f / FPS) * (P.globalSpeed || 1);
+      if (ASSETS.bgVideoEl && ASSETS.bgVideoEl.duration) {
+        ASSETS.bgVideoEl.currentTime = (t + (ASSETS.videoOffset || 0)) % ASSETS.bgVideoEl.duration;
+      }
+      drawFrame(Math.min(dur, t));
+      batch.push(canvas.toDataURL('image/jpeg', 0.92));
+
+      if (batch.length >= batchSize || f === totalFrames - 1) {
+        await fetch('/api/render/chunk', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ jobId, frames: batch })
+        });
+        batch = [];
+        const pct = Math.round(((f + 1) / totalFrames) * 100);
+        barEl.style.width = pct + '%';
+        status.textContent = `Kare ${f + 1} / ${totalFrames} (${pct}%) işleniyor...`;
+      }
+    }
+
+    status.textContent = 'SFX ses kanalı sentezleniyor ve MP4 ile birleştiriliyor...';
+    const audioWavBase64 = sfxEnabled ? await renderProjectAudioWavBase64(totalDurationSec) : null;
+
+    const fin = await fetch('/api/render/finish', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ jobId, audioWavBase64 })
+    }).then(r => r.json());
+
+    if (fin.ok && fin.url) {
+      const a = document.createElement('a');
+      a.href = fin.url;
+      a.download = `${P.brandName || 'Motion'}_2026.mp4`;
+      a.click();
+    }
+  } catch (err) {
+    alert('Render hatası: ' + err.message);
+  } finally {
+    modal.classList.remove('show');
+    playing = wasPlaying;
+    lastNow = performance.now();
+  }
+});
+
+/* ============================================================================
+   11. INTERACTIVE 4-PANEL RESIZER & 16:9 STAGE AUTO-FIT
+   ============================================================================ */
+const workspaceGrid = document.getElementById('workspaceGrid');
+const stageCol = document.getElementById('stageCol');
+const canvasHolder = document.getElementById('canvasHolder');
+const canvasFrame = document.getElementById('canvasFrame');
+const resizerLeft = document.getElementById('resizerLeft');
+const resizerRight = document.getElementById('resizerRight');
+const resizerStage = document.getElementById('resizerStage');
+
+let userManuallyResizedStage = false;
+
+function fitCanvasFrame() {
+  if (!canvasHolder || !canvasFrame || !stageCol) return;
+  const pad = 28; // 14px padding on each side
+
+  // Dynamic ratio: 16:9 (~1.777), 9:16 (~0.5625), 1:1 (1.0)
+  const ratioVal = currentRatio === '9:16' ? (9 / 16) : currentRatio === '1:1' ? 1.0 : (16 / 9);
+
+  // Unless the user manually dragged the horizontal stage splitter,
+  // automatically size --bottom-h so the top stage wraps tightly around the video
+  if (!userManuallyResizedStage) {
+    const colW = stageCol.clientWidth;
+    const colH = stageCol.clientHeight;
+    if (colW > 200 && colH > 260) {
+      const idealVideoH = (colW - pad) / ratioVal;
+      const idealStageH = idealVideoH + pad;
+      const autoBottomH = clamp(Math.round(colH - idealStageH - 12), 92, Math.round(colH * 0.48));
+      workspaceGrid.style.setProperty('--bottom-h', `${autoBottomH}px`);
+    }
+  }
+
+  const availW = Math.max(120, canvasHolder.clientWidth - pad);
+  const availH = Math.max(80, canvasHolder.clientHeight - pad);
+  let w = availW;
+  let h = w / ratioVal;
+  if (h > availH) {
+    h = availH;
+    w = h * ratioVal;
+  }
+  canvasFrame.style.width = `${Math.floor(w)}px`;
+  canvasFrame.style.height = `${Math.floor(h)}px`;
+}
+
+function setAspectRatio(ratio) {
+  currentRatio = ratio;
+  if (ratio === '9:16') {
+    W = 1080;
+    H = 1920;
+    canvasFrame.style.aspectRatio = '9 / 16';
+  } else if (ratio === '1:1') {
+    W = 1080;
+    H = 1080;
+    canvasFrame.style.aspectRatio = '1 / 1';
+  } else {
+    currentRatio = '16:9';
+    W = 1920;
+    H = 1080;
+    canvasFrame.style.aspectRatio = '16 / 9';
+  }
+  canvas.width = W;
+  canvas.height = H;
+  document.querySelectorAll('.ratio-btn').forEach(b => {
+    b.classList.toggle('active', b.getAttribute('data-ratio') === currentRatio);
+  });
+  compileAllScenes();
+  fitCanvasFrame();
+  drawFrame(curTime);
+  flashUpdated(`📐 Format: ${currentRatio} (${W}x${H})`);
+}
+
+document.querySelectorAll('.ratio-btn').forEach(btn => {
+  btn.addEventListener('click', () => setAspectRatio(btn.getAttribute('data-ratio')));
+});
+
+window.addEventListener('resize', fitCanvasFrame);
+
+// Left vertical divider (Panel 1 <-> Center)
+resizerLeft.addEventListener('mousedown', e => {
+  e.preventDefault();
+  resizerLeft.classList.add('dragging');
+  document.body.classList.add('is-resizing-v');
+  const startX = e.clientX;
+  const startW = workspaceGrid.querySelector('.chat-col').getBoundingClientRect().width;
+
+  const onMove = ev => {
+    const maxLeft = Math.max(260, window.innerWidth - 680);
+    const nextW = clamp(startW + (ev.clientX - startX), 220, Math.min(620, maxLeft));
+    workspaceGrid.style.setProperty('--left-w', `${Math.round(nextW)}px`);
+    fitCanvasFrame();
+  };
+  const onUp = () => {
+    resizerLeft.classList.remove('dragging');
+    document.body.classList.remove('is-resizing-v');
+    window.removeEventListener('mousemove', onMove);
+    window.removeEventListener('mouseup', onUp);
+  };
+  window.addEventListener('mousemove', onMove);
+  window.addEventListener('mouseup', onUp);
+});
+resizerLeft.addEventListener('dblclick', () => {
+  workspaceGrid.style.setProperty('--left-w', '425px');
+  fitCanvasFrame();
+});
+
+// Right vertical divider (Center <-> Panel 4)
+resizerRight.addEventListener('mousedown', e => {
+  e.preventDefault();
+  resizerRight.classList.add('dragging');
+  document.body.classList.add('is-resizing-v');
+  const startX = e.clientX;
+  const startW = workspaceGrid.querySelector('.inspector-col').getBoundingClientRect().width;
+
+  const onMove = ev => {
+    const maxRight = Math.max(260, window.innerWidth - 680);
+    const nextW = clamp(startW - (ev.clientX - startX), 240, Math.min(650, maxRight));
+    workspaceGrid.style.setProperty('--right-w', `${Math.round(nextW)}px`);
+    fitCanvasFrame();
+  };
+  const onUp = () => {
+    resizerRight.classList.remove('dragging');
+    document.body.classList.remove('is-resizing-v');
+    window.removeEventListener('mousemove', onMove);
+    window.removeEventListener('mouseup', onUp);
+  };
+  window.addEventListener('mousemove', onMove);
+  window.addEventListener('mouseup', onUp);
+});
+resizerRight.addEventListener('dblclick', () => {
+  workspaceGrid.style.setProperty('--right-w', '415px');
+  fitCanvasFrame();
+});
+
+// Center horizontal divider (Top Stage Panel 2 <-> Bottom Timeline Panel 3)
+resizerStage.addEventListener('mousedown', e => {
+  e.preventDefault();
+  userManuallyResizedStage = true;
+  resizerStage.classList.add('dragging');
+  document.body.classList.add('is-resizing-h');
+  const startY = e.clientY;
+  const startH = stageCol.querySelector('.timeline-dock').getBoundingClientRect().height;
+
+  const onMove = ev => {
+    const totalH = stageCol.getBoundingClientRect().height;
+    const nextH = clamp(startH - (ev.clientY - startY), 82, Math.max(120, totalH - 200));
+    workspaceGrid.style.setProperty('--bottom-h', `${Math.round(nextH)}px`);
+    fitCanvasFrame();
+  };
+  const onUp = () => {
+    resizerStage.classList.remove('dragging');
+    document.body.classList.remove('is-resizing-h');
+    window.removeEventListener('mousemove', onMove);
+    window.removeEventListener('mouseup', onUp);
+  };
+  window.addEventListener('mousemove', onMove);
+  window.addEventListener('mouseup', onUp);
+});
+resizerStage.addEventListener('dblclick', () => {
+  userManuallyResizedStage = false;
+  fitCanvasFrame();
+});
+
+// Boot
+setWorkflowMode('edit');
+loadProject(DEFAULT_PROJECT, false);
+fitCanvasFrame();
+document.fonts.ready.then(() => {
+  fitCanvasFrame();
+  drawFrame(0);
+  requestAnimationFrame(tick);
+});
+</script>
+</body>
+</html>
